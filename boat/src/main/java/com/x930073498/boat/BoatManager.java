@@ -3,7 +3,7 @@ package com.x930073498.boat;
 import android.app.Activity;
 import android.app.Application;
 import android.os.Bundle;
-import android.support.v4.util.ArrayMap;
+import androidx.collection.ArrayMap;
 
 import java.util.ArrayList;
 import java.util.Collections;
