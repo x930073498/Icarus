@@ -6,10 +6,10 @@ import android.view.ViewGroup;
 /**
  * Created by x930073498 on 2019/6/19.
  */
-public abstract class DelegateBaseItem implements BaseItem {
+public abstract class ViewDelegateBaseItem implements BaseItem {
     private HolderViewProvider delegate;
 
-    public DelegateBaseItem(HolderViewProvider provider) {
+    public ViewDelegateBaseItem(HolderViewProvider provider) {
         this.delegate = provider;
     }
 

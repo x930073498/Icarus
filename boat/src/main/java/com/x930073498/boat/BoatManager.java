@@ -3,6 +3,7 @@ package com.x930073498.boat;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.collection.ArrayMap;
@@ -18,21 +19,6 @@ public class BoatManager {
     private static List<Activity> activities = Collections.synchronizedList(new ArrayList<Activity>());
     private static Map<Activity, State> map = Collections.synchronizedMap(new ArrayMap<Activity, State>());
 
-    public enum State {
-        CREATED(1),
-        STARTED(2),
-        RESUMED(3),
-        PAUSED(4),
-        STOPPED(5),
-        SAVE_INSTANCE_STATE(6),
-        DESTROYED(-1);
-        int value;
-
-        State(int value) {
-            this.value = value;
-        }
-    }
-
     public static State getState(Activity activity) {
         State state = map.get(activity);
         return state == null ? State.DESTROYED : state;
@@ -41,6 +27,9 @@ public class BoatManager {
     public static Activity getTopActivity() {
         if (activities.isEmpty()) return null;
         return activities.get(0);
+    }
+    public static State getTopState(){
+        return getState(getTopActivity());
     }
 
     public static boolean isInForground() {

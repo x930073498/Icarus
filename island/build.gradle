@@ -26,12 +26,9 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-
-    implementation 'androidx.appcompat:appcompat:1.0.2'
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test:runner:1.2.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    implementation "com.x930073498.icarus:${BOAT_ARTIFACT_ID}:${VERSION_NAME}"
 }
+
 
 uploadArchives {
 
@@ -47,7 +44,7 @@ uploadArchives {
 
         // 项目名称
 
-        pom.artifactId = BOAT_ARTIFACT_ID
+        pom.artifactId = ISLAND_ARTIFACT_ID
 
         // 版本号
 

@@ -4,24 +4,20 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.annotation.NonNull;
-
-import java.util.List;
-
 /**
  * Created by x930073498 on 2019/6/19.
  */
 public abstract class LayoutBaseItem implements BaseItem {
     @Override
-    public Object getData() {
+    public  Object getData() {
         return this;
     }
 
-    public abstract int getLayout(Object data,int position);
+    public abstract int getLayout(Object data, int position);
 
     @Override
     public final View create(ViewGroup group, int viewType) {
-        return LayoutInflater.from(group.getContext()).inflate(viewType,group,false);
+        return LayoutInflater.from(group.getContext()).inflate(viewType, group, false);
     }
 
     @Override

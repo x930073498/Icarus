@@ -31,6 +31,10 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonHolder> {
         insert(0, Arrays.asList(items));
     }
 
+    public synchronized void insert(Collection<BaseItem> items) {
+        insert(0, items);
+    }
+
     public synchronized void replace(Collection<BaseItem> items) {
         source.clear();
         if (items == null) return;
@@ -96,8 +100,8 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonHolder> {
     }
 
     public synchronized void move(int fromIndex, int toIndex, int count) {
-        if (fromIndex + count < source.size()) return;
-        List<BaseItem> items = source.subList(fromIndex, fromIndex + count);
+        if (fromIndex + count > source.size()) return;
+        List<BaseItem> items = new ArrayList<>(source.subList(fromIndex, fromIndex + count));
         move(fromIndex, toIndex, items);
     }
 
