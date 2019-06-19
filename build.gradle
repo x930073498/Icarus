@@ -6,10 +6,6 @@ buildscript {
         google()
         jcenter()
         maven { url "https://plugins.gradle.org/m2/" }
-        maven {
-            url "http://dl.bintray.com/kezong/maven"
-        }
-
     }
 
     dependencies {
@@ -24,8 +20,6 @@ allprojects {
     repositories {
         google()
         jcenter()
-//        maven { url("file://${rootProject.absoluteProjectPath}/repo") }
-
         maven { url localUrl }
     }
 }

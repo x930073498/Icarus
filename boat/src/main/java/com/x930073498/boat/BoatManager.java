@@ -2,7 +2,9 @@ package com.x930073498.boat;
 
 import android.app.Activity;
 import android.app.Application;
+import android.content.Context;
 import android.os.Bundle;
+
 import androidx.collection.ArrayMap;
 
 import java.util.ArrayList;
@@ -46,7 +48,7 @@ public class BoatManager {
         return isActive(getState(activity));
     }
 
-    public static void exit(){
+    public static void exit() {
         for (Activity activity : activities) {
             activity.finish();
         }
@@ -61,6 +63,20 @@ public class BoatManager {
         if (mApp != null) return;
         mApp = app;
         mApp.registerActivityLifecycleCallbacks(new Callback());
+    }
+
+    public static Context getApplicationContext() {
+        return mApp;
+    }
+
+    public static <T extends Application> T getApplication() {
+        return (T) mApp;
+    }
+
+    public static Context getLatestContext() {
+        Activity activity = getTopActivity();
+        if (activity == null) return mApp;
+        return activity;
     }
 
     private static class Callback implements Application.ActivityLifecycleCallbacks {
