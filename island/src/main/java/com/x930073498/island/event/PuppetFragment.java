@@ -84,6 +84,7 @@ public class PuppetFragment extends Fragment implements Event, ActionDelegate, S
         startActivityForResult(intent, requestCode);
     }
 
+
     @Override
     public void requestPermission(int requestCode, String... permissions) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

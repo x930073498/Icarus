@@ -6,11 +6,13 @@ import com.x930073498.island.core.Action;
 import com.x930073498.island.core.ActionDelegate;
 import com.x930073498.island.core.ActionHandler;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by x930073498 on 2019/6/20.
  */
 public class PermissionAction extends Action implements PermissionEvent {
-    private static final String TAG = "PermissionAction";
     protected String[] permissions;
 
     private boolean hasRequest = false;
@@ -18,6 +20,16 @@ public class PermissionAction extends Action implements PermissionEvent {
     public PermissionAction(ActionDelegate delegate, ActionHandler handler, int requestCode, String[] permissions) {
         super(delegate, handler, requestCode);
         this.permissions = permissions;
+        checkPermissions();
+    }
+
+    private void checkPermissions() {
+        List<String> list = new ArrayList<>();
+        for (String permission : permissions
+        ) {
+            if (Permission.isValid(permission)) list.add(permission);
+        }
+        permissions = list.toArray(new String[0]);
     }
 
     @Override
@@ -41,7 +53,7 @@ public class PermissionAction extends Action implements PermissionEvent {
     }
 
     @Override
-   protected final void onActivityResult( int resultCode, Intent data) {
+    protected final void onActivityResult(int resultCode, Intent data) {
     }
 
 }

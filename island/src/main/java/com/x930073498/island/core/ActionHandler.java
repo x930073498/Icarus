@@ -80,16 +80,18 @@ public class ActionHandler implements Event {
     }
 
     public void requestActual() {
-        if (!delegate.isAttached()) {
-            delegate.attach();
-            return;
+        synchronized (ActionHandler.class) {
+            if (!delegate.isAttached()) {
+                delegate.attach();
+                return;
+            }
+            if (isRequest) return;
+            if (!isActive) return;
+            if (actions.isEmpty()) return;
+            isRequest = true;
+            Action action = actions.get(0);
+            action.requestInternal();
         }
-        if (isRequest) return;
-        if (!isActive) return;
-        if (actions.isEmpty()) return;
-        isRequest = true;
-        Action action = actions.get(0);
-        action.requestInternal();
     }
 
 

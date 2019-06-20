@@ -11,19 +11,22 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class BoatManager {
     private volatile static Application mApp;
     private static List<Activity> activities = Collections.synchronizedList(new ArrayList<Activity>());
     private static Map<Activity, State> map = Collections.synchronizedMap(new HashMap<Activity, State>());
-    private static List<StateListener> mListeners = Collections.synchronizedList(new ArrayList<StateListener>());
+    private static List<StateListener> mListeners = new CopyOnWriteArrayList<>();
 
     private static StateListener listener = new StateListener() {
         @Override
         public void onState(Activity activity, State state) {
-            for (StateListener listener : mListeners
+            for (StateListener temp : mListeners
             ) {
-                listener.onState(activity, state);
+                if (temp != null) {
+                    temp.onState(activity, state);
+                }
             }
         }
     };
@@ -31,6 +34,20 @@ public class BoatManager {
     public static void registerStateListener(StateListener listener) {
         if (mListeners.contains(listener)) return;
         mListeners.add(listener);
+    }
+
+    public static void registerStateChangeListener(final Activity activity, final StateListener listener) {
+        registerStateListener(new StateListener() {
+            @Override
+            public void onState(Activity activity1, State state) {
+                if (activity == activity1) {
+                    listener.onState(activity, state);
+                    if (state == State.DESTROYED) {
+                        unregisterStateListener(this);
+                    }
+                }
+            }
+        });
     }
 
     public static void unregisterStateListener(StateListener... listeners) {
@@ -134,6 +151,7 @@ public class BoatManager {
             activities.remove(activity);
             map.remove(activity);
             listener.onState(activity, State.DESTROYED);
+
         }
     }
 

@@ -1,21 +1,24 @@
 package com.x930073498.app;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.x930073498.adapter.BaseItemWrapper;
 import com.x930073498.adapter.CommonAdapter;
+import com.x930073498.boat.BoatManager;
+import com.x930073498.boat.State;
+import com.x930073498.boat.StateListener;
 import com.x930073498.island.IslandManager;
+import com.x930073498.island.permission.MultiplePermissionCallback;
+import com.x930073498.island.permission.MultiplePermissionResult;
 import com.x930073498.island.result.ActivityResultCallback;
-import com.x930073498.island.permission.SinglePermissionCallback;
-import com.x930073498.island.permission.SinglePermissionResult;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -30,31 +33,47 @@ public class MainActivity extends AppCompatActivity {
         recycler = findViewById(R.id.recycler);
         recycler.setLayoutManager(new LinearLayoutManager(this));
         recycler.setAdapter(adapter);
-
-        IslandManager.guess().request(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_PHONE_STATE)
-//                .forAll(new MultiplePermissionCallback() {
-//                    @Override
-//                    public void call(MultiplePermissionResult multiplePermissionResult) {
-//                        Log.e("TAG", "isGranted=" + multiplePermissionResult.isGranted());
-//                    }
-//                })
-                .forEach(new SinglePermissionCallback() {
-                    @Override
-                    public boolean intercept(SinglePermissionResult result) {
-                        Log.e(TAG, "name=" + result.getName() + "   isGranted=" + result.isGranted());
-                        return !result.isGranted();
-                    }
-                })
-        ;
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("image/*");
-        IslandManager.guess().request(intent).onResult(new ActivityResultCallback() {
+        BoatManager.registerStateChangeListener(this, new StateListener() {
             @Override
-            public void call(int resultCode, Intent data) {
-                if (resultCode == RESULT_OK)
-                    Log.e(TAG, "call: data=" + data.getData());
+            public void onState(Activity activity, State state) {
+
             }
         });
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                //        Intent intent = new Intent();
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.setType("image/*");
+                IslandManager.guess().request(intent).onResult(new ActivityResultCallback() {
+                    @Override
+                    public void call(int resultCode, Intent data) {
+                        if (resultCode == RESULT_OK)
+                            Log.e(TAG, "call: data=" + data.getData());
+                        else if (resultCode == RESULT_CANCELED) {
+                            Log.e(TAG, "isCanceled");
+                        }
+                    }
+                });
+                IslandManager.guess().request(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_PHONE_STATE)
+//                .forEach(new SinglePermissionCallback() {
+//                    @Override
+//                    public boolean intercept(SinglePermissionResult result) {
+//                        Log.e(TAG, "name=" + result.getName() + "   isGranted=" + result.isGranted());
+//                        return !result.isGranted();
+//                    }
+//                })
+                        .forAll(new MultiplePermissionCallback() {
+                            @Override
+                            public void call(MultiplePermissionResult result) {
+                                Log.e(TAG, "call: result="+result );
+                            }
+                        });
+            }
+        }).start();
+
+
         recycler.postDelayed(new Runnable() {
             @Override
             public void run() {

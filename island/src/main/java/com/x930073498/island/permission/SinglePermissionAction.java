@@ -21,21 +21,17 @@ class SinglePermissionAction extends PermissionAction {
     }
 
     @Override
-  protected   void onRequestPermissionsResult(  String[] permissions, int[] grantResults) {
+    protected void onRequestPermissionsResult(String[] permissions, int[] grantResults) {
         if (permissions.length > 0) {
             SinglePermissionResult result = new SinglePermissionResult();
             result.name = permissions[0];
             result.granted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+            result.shouldShowRequestPermissionRationale = delegate.shouldShowRequestPermissionRationale(result.name);
             boolean flag = callback.intercept(result);
             if (flag) {
                 finishRequest();
             } else {
-                index++;
-                if (index >= this.permissions.length) {
-                    finishRequest();
-                } else {
-                    requestInternal();
-                }
+                requestNext();
             }
         } else {
             finishRequest();
@@ -49,7 +45,16 @@ class SinglePermissionAction extends PermissionAction {
     }
 
     @Override
-   protected void requestInternal() {
+    protected void requestInternal() {
         delegate.requestPermission(requestCode, permissions[index]);
+    }
+
+    private void requestNext() {
+        index++;
+        if (index >= this.permissions.length) {
+            finishRequest();
+        } else {
+            requestInternal();
+        }
     }
 }

@@ -18,4 +18,12 @@ public class MultiplePermissionResult {
     public List<Permission> getPermissions() {
         return permissions;
     }
+
+    @Override
+    public String toString() {
+        return "MultiplePermissionResult{" +
+                "granted=" + granted +
+                ", permissions=" + permissions +
+                '}';
+    }
 }

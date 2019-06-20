@@ -1,7 +1,8 @@
 package com.x930073498.island;
 
 import android.app.Activity;
-import android.util.Log;
+import android.content.pm.PackageManager;
+import android.os.Process;
 
 import com.x930073498.boat.BoatManager;
 import com.x930073498.boat.State;
@@ -9,6 +10,7 @@ import com.x930073498.boat.StateListener;
 import com.x930073498.island.event.DefaultIslandProvider;
 import com.x930073498.island.core.Event;
 import com.x930073498.island.core.IslandProvider;
+import com.x930073498.island.permission.Permission;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -57,13 +59,21 @@ public class IslandManager {
             throw new RuntimeException("has No Event created");
         }
         map.put(activity, event);
-        Log.e(TAG, "get: event="+event );
         return event;
     }
 
 
     public synchronized static Event attach(Activity activity) {
         return IslandManager.get(activity);
+    }
+
+    public static boolean isValid(String permission) {
+        return Permission.isValid(permission);
+    }
+
+    public static boolean isGranted(String permission) {
+
+        return !isValid(permission) || BoatManager.getApplicationContext().checkPermission(permission, Process.myPid(), Process.myUid()) == PackageManager.PERMISSION_GRANTED;
     }
 
     public static Event guess() {

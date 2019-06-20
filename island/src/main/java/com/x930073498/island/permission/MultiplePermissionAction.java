@@ -6,6 +6,9 @@ import android.content.pm.PackageManager;
 import com.x930073498.island.core.ActionDelegate;
 import com.x930073498.island.core.ActionHandler;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by x930073498 on 2019/6/20.
  */
@@ -26,6 +29,7 @@ class MultiplePermissionAction extends PermissionAction {
             for (int i = 0; i < permissions.length; i++) {
                 permission = new Permission();
                 permission.name = permissions[i];
+                permission.shouldShowRequestPermissionRationale = delegate.shouldShowRequestPermissionRationale(permission.name);
                 if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
                     isAllGranted = false;
                     permission.granted = false;
@@ -43,7 +47,7 @@ class MultiplePermissionAction extends PermissionAction {
     }
 
     @Override
-   protected void requestInternal() {
+    protected void requestInternal() {
         delegate.requestPermission(requestCode, permissions);
     }
 }

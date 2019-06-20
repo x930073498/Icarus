@@ -10,6 +10,8 @@ public interface ActionDelegate {
 
     void requestPermission(int requestCode, String... permissions);
 
+    boolean shouldShowRequestPermissionRationale(String permissions);
+
     void attach();
 
     boolean isAttached();
