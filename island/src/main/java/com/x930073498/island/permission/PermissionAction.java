@@ -26,7 +26,7 @@ public class PermissionAction extends Action implements PermissionEvent {
         if (permissions == null || permissions.length == 0) return;
         Action action = new SinglePermissionAction(delegate, handler, requestCode, permissions, callback);
         handler.addAction(action);
-        handler.request();
+        handler.requestActual();
         hasRequest = true;
     }
 
@@ -36,7 +36,7 @@ public class PermissionAction extends Action implements PermissionEvent {
         if (permissions == null || permissions.length == 0) return;
         Action action = new MultiplePermissionAction(delegate, handler, requestCode, permissions, callback);
         handler.addAction(action);
-        handler.request();
+        handler.requestActual();
         hasRequest = true;
     }
 

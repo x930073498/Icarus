@@ -2,8 +2,6 @@ package com.x930073498.island.core;
 
 import android.content.Intent;
 
-import androidx.annotation.NonNull;
-
 /**
  * Created by x930073498 on 2019/6/20.
  */
@@ -18,7 +16,7 @@ public abstract class Action {
         this.delegate = delegate;
     }
 
-    protected void onRequestPermissionsResult(@NonNull String[] permissions, @NonNull int[] grantResults) {
+    protected void onRequestPermissionsResult( String[] permissions, int[] grantResults) {
 
     }
 

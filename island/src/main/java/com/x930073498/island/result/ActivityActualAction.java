@@ -21,7 +21,7 @@ class ActivityActualAction extends ActivityAction {
         callback.call( resultCode, data);
         handler.removeAction(this);
         handler.setRequest(false);
-        handler.request();
+        handler.requestActual();
     }
 
     @Override

@@ -2,7 +2,6 @@ package com.x930073498.island.core;
 
 import android.content.Intent;
 
-import androidx.annotation.NonNull;
 
 import com.x930073498.island.permission.PermissionAction;
 import com.x930073498.island.permission.PermissionEvent;
@@ -27,16 +26,16 @@ public class ActionHandler implements Event {
 
     private volatile boolean isRequest = false;
 
-    void onResume() {
+    public void onResume() {
         isActive = true;
-        request();
+        requestActual();
     }
 
-    void onPause() {
+    public void onPause() {
         isActive = false;
     }
 
-    void onDestroy() {
+    public void onDestroy() {
         isActive = false;
         actions.clear();
     }
@@ -46,24 +45,24 @@ public class ActionHandler implements Event {
         isRequest = request;
     }
 
-    ActionHandler(ActionDelegate delegate) {
+    public ActionHandler(ActionDelegate delegate) {
         this.delegate = delegate;
     }
 
-    void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         Action action = getAction(requestCode);
         if (action != null) {
             action.onRequestPermissionsResult(permissions, grantResults);
         }
     }
 
-    void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         Action action = getAction(requestCode);
         if (action != null) action.onActivityResult(resultCode, data);
 
     }
 
-   public synchronized void addAction(Action action) {
+    public synchronized void addAction(Action action) {
         if (actions.contains(action)) return;
         actions.add(action);
     }
@@ -80,7 +79,7 @@ public class ActionHandler implements Event {
         return null;
     }
 
-    void request() {
+    public void requestActual() {
         if (!delegate.isAttached()) {
             delegate.attach();
             return;

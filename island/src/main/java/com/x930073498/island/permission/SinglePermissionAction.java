@@ -2,7 +2,6 @@ package com.x930073498.island.permission;
 
 import android.content.pm.PackageManager;
 
-import androidx.annotation.NonNull;
 
 import com.x930073498.island.core.ActionDelegate;
 import com.x930073498.island.core.ActionHandler;
@@ -22,7 +21,7 @@ class SinglePermissionAction extends PermissionAction {
     }
 
     @Override
-  protected   void onRequestPermissionsResult( @NonNull String[] permissions, @NonNull int[] grantResults) {
+  protected   void onRequestPermissionsResult(  String[] permissions, int[] grantResults) {
         if (permissions.length > 0) {
             SinglePermissionResult result = new SinglePermissionResult();
             result.name = permissions[0];
@@ -46,7 +45,7 @@ class SinglePermissionAction extends PermissionAction {
     private void finishRequest() {
         handler.removeAction(this);
         handler.setRequest(false);
-        handler.request();
+        handler.requestActual();
     }
 
     @Override

@@ -7,15 +7,10 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 
-import androidx.annotation.NonNull;
-
 import com.x930073498.boat.BoatManager;
 import com.x930073498.boat.State;
 import com.x930073498.boat.StateListener;
-import com.x930073498.island.IslandLoader;
-import com.x930073498.island.core.ActionDelegate;
-import com.x930073498.island.core.ActionHandler;
-import com.x930073498.island.core.Event;
+import com.x930073498.island.IslandManager;
 import com.x930073498.island.permission.PermissionEvent;
 import com.x930073498.island.result.ActivityResultEvent;
 
@@ -25,12 +20,25 @@ import com.x930073498.island.result.ActivityResultEvent;
 public class PuppetFragment extends Fragment implements Event, ActionDelegate, StateListener {
 
 
-    public Activity activity;
+    private Activity activity;
     private ActionHandler handler = new ActionHandler(this);
     private boolean isAttached = false;
 
     public PuppetFragment() {
         BoatManager.registerStateListener(this);
+    }
+
+    public static PuppetFragment get(Activity activity,  String TAG) {
+        Fragment fragment = activity.getFragmentManager().findFragmentByTag(TAG);
+        if (!(fragment instanceof PuppetFragment)) {
+            PuppetFragment fragment1 = new PuppetFragment();
+            fragment1.activity = activity;
+            return fragment1;
+        } else {
+            PuppetFragment fragment1 = (PuppetFragment) fragment;
+            fragment1.activity = activity;
+            return fragment1;
+        }
     }
 
     @Override
@@ -43,7 +51,7 @@ public class PuppetFragment extends Fragment implements Event, ActionDelegate, S
     public void onAttach(Context context) {
         super.onAttach(context);
         isAttached = true;
-        handler.request();
+        handler.requestActual();
     }
 
     @Override
@@ -53,7 +61,7 @@ public class PuppetFragment extends Fragment implements Event, ActionDelegate, S
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         handler.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
@@ -93,7 +101,7 @@ public class PuppetFragment extends Fragment implements Event, ActionDelegate, S
         if (!isAttached && !hasAdded) {
             hasAdded = true;
             activity.getFragmentManager().beginTransaction()
-                    .add(this, IslandLoader.TAG)
+                    .add(this, IslandManager.TAG)
                     .commitAllowingStateLoss();
         }
     }

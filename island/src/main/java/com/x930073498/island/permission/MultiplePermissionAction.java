@@ -2,7 +2,6 @@ package com.x930073498.island.permission;
 
 import android.content.pm.PackageManager;
 
-import androidx.annotation.NonNull;
 
 import com.x930073498.island.core.ActionDelegate;
 import com.x930073498.island.core.ActionHandler;
@@ -19,7 +18,7 @@ class MultiplePermissionAction extends PermissionAction {
     }
 
     @Override
-    protected void onRequestPermissionsResult(@NonNull String[] permissions, @NonNull int[] grantResults) {
+    protected void onRequestPermissionsResult(String[] permissions, int[] grantResults) {
         if (callback != null) {
             MultiplePermissionResult result = new MultiplePermissionResult();
             boolean isAllGranted = true;
@@ -40,7 +39,7 @@ class MultiplePermissionAction extends PermissionAction {
         }
         handler.removeAction(this);
         handler.setRequest(false);
-        handler.request();
+        handler.requestActual();
     }
 
     @Override

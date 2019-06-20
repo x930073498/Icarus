@@ -1,0 +1,12 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.x930073498.islandx">
+
+    <application>
+        <provider
+            android:name=".IslandXContentProvider"
+            android:authorities="com.x930073498.islandx"
+            android:exported="false" />
+
+    </application>
+
+</manifest>

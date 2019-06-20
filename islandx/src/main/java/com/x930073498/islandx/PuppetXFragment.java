@@ -1,4 +1,4 @@
-package com.x930073498.island.core;
+package com.x930073498.islandx;
 
 import android.app.Activity;
 import android.content.Context;
@@ -8,22 +8,24 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
+
 import com.x930073498.boat.BoatManager;
 import com.x930073498.boat.State;
 import com.x930073498.boat.StateListener;
-import com.x930073498.island.IslandLoader;
 import com.x930073498.island.core.ActionDelegate;
 import com.x930073498.island.core.ActionHandler;
 import com.x930073498.island.core.Event;
 import com.x930073498.island.permission.PermissionEvent;
 import com.x930073498.island.result.ActivityResultEvent;
 
+import static com.x930073498.island.IslandManager.TAG;
+
 /**
  * Created by x930073498 on 2019/6/19.
  */
 public class PuppetXFragment extends Fragment implements Event, ActionDelegate, StateListener {
 
-    public Activity activity;
+    private FragmentActivity activity;
     private ActionHandler handler = new ActionHandler(this);
 
     private boolean isAttached = false;
@@ -32,6 +34,18 @@ public class PuppetXFragment extends Fragment implements Event, ActionDelegate, 
         BoatManager.registerStateListener(this);
     }
 
+    static PuppetXFragment get(FragmentActivity activity, String TAG) {
+        Fragment fragment = activity.getSupportFragmentManager().findFragmentByTag(TAG);
+        if (!(fragment instanceof PuppetXFragment)) {
+            PuppetXFragment fragment1 = new PuppetXFragment();
+            fragment1.activity = activity;
+            return fragment1;
+        } else {
+            PuppetXFragment fragment1 = (PuppetXFragment) fragment;
+            fragment1.activity = activity;
+            return fragment1;
+        }
+    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -49,7 +63,7 @@ public class PuppetXFragment extends Fragment implements Event, ActionDelegate, 
     public void onAttach(Context context) {
         super.onAttach(context);
         isAttached = true;
-        handler.request();
+        handler.requestActual();
     }
 
     @Override
@@ -89,9 +103,9 @@ public class PuppetXFragment extends Fragment implements Event, ActionDelegate, 
     @Override
     public void attach() {
         if (isAttached) return;
-        if (activity instanceof FragmentActivity && !hasAdd) {
+        if (activity != null && !hasAdd) {
             hasAdd = true;
-            ((FragmentActivity) activity).getSupportFragmentManager().beginTransaction().add(this, IslandLoader.TAG).commitAllowingStateLoss();
+            activity.getSupportFragmentManager().beginTransaction().add(this, TAG).commitAllowingStateLoss();
         }
     }
 

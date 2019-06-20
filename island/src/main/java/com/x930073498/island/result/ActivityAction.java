@@ -2,7 +2,6 @@ package com.x930073498.island.result;
 
 import android.content.Intent;
 
-import androidx.annotation.NonNull;
 
 import com.x930073498.island.core.Action;
 import com.x930073498.island.core.ActionDelegate;
@@ -27,12 +26,12 @@ public class ActivityAction extends Action implements ActivityResultEvent {
         if (intent == null) return;
         Action action = new ActivityActualAction(delegate, handler, requestCode, intent, callback);
         handler.addAction(action);
-        handler.request();
+        handler.requestActual();
         hasRequest = true;
     }
 
     @Override
-   protected final void onRequestPermissionsResult( @NonNull String[] permissions, @NonNull int[] grantResults) {
+   protected final void onRequestPermissionsResult( String[] permissions,int[] grantResults) {
     }
 
 }

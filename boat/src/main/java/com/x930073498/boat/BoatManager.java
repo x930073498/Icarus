@@ -5,17 +5,17 @@ import android.app.Application;
 import android.content.Context;
 import android.os.Bundle;
 
-import androidx.collection.ArrayMap;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class BoatManager {
     private volatile static Application mApp;
     private static List<Activity> activities = Collections.synchronizedList(new ArrayList<Activity>());
-    private static Map<Activity, State> map = Collections.synchronizedMap(new ArrayMap<Activity, State>());
+    private static Map<Activity, State> map = Collections.synchronizedMap(new HashMap<Activity, State>());
     private static List<StateListener> mListeners = Collections.synchronizedList(new ArrayList<StateListener>());
 
     private static StateListener listener = new StateListener() {

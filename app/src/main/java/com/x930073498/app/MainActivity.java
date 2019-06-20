@@ -5,14 +5,15 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
 import com.x930073498.adapter.BaseItemWrapper;
 import com.x930073498.adapter.CommonAdapter;
+import com.x930073498.island.IslandManager;
 import com.x930073498.island.result.ActivityResultCallback;
-import com.x930073498.island.IslandLoader;
 import com.x930073498.island.permission.SinglePermissionCallback;
 import com.x930073498.island.permission.SinglePermissionResult;
 
@@ -30,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
         recycler.setLayoutManager(new LinearLayoutManager(this));
         recycler.setAdapter(adapter);
 
-        IslandLoader.guess().request(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_PHONE_STATE)
+        IslandManager.guess().request(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_PHONE_STATE)
 //                .forAll(new MultiplePermissionCallback() {
 //                    @Override
 //                    public void call(MultiplePermissionResult multiplePermissionResult) {
@@ -47,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
         ;
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/*");
-        IslandLoader.guess().request(intent).onResult(new ActivityResultCallback() {
+        IslandManager.guess().request(intent).onResult(new ActivityResultCallback() {
             @Override
             public void call(int resultCode, Intent data) {
                 if (resultCode == RESULT_OK)

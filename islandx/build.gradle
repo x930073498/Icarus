@@ -1,11 +1,10 @@
-apply plugin: 'com.android.application'
-
+apply plugin: 'com.android.library'
+apply plugin: 'maven'
 android {
     compileSdkVersion 28
 
 
     defaultConfig {
-        applicationId "com.x930073498.app"
         minSdkVersion 15
         targetSdkVersion 28
         versionCode 1
@@ -27,17 +26,40 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation 'androidx.recyclerview:recyclerview:1.0.0'
     implementation 'androidx.appcompat:appcompat:1.0.2'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
-    debugImplementation project(':adapter')
+    debugImplementation project(":island")
     debugImplementation project(':boat')
-    debugImplementation project(':island')
-    debugImplementation project(':islandx')
-    releaseImplementation "com.x930073498.icarus:${ADAPTER_ARTIFACT_ID}:${VERSION_NAME}"
     releaseImplementation "com.x930073498.icarus:${ISLAND_ARTIFACT_ID}:${VERSION_NAME}"
-    releaseImplementation "com.x930073498.icarus:${ISLANDX_ARTIFACT_ID}:${VERSION_NAME}"
     releaseImplementation "com.x930073498.icarus:${BOAT_ARTIFACT_ID}:${VERSION_NAME}"
 }
+
+
+uploadArchives {
+
+    repositories.mavenDeployer {
+
+        // 本地仓库路径
+
+        repository(url: uri(LOCAL_REPOSITORY))
+
+        // 唯一标识
+
+        pom.groupId = GROUP_ID
+
+        // 项目名称
+
+        pom.artifactId = ISLANDX_ARTIFACT_ID
+
+        // 版本号
+
+        pom.version = VERSION_NAME
+
+        pom.packaging = LIB_TYPE
+    }
+}
+
+
+uploadArchives.dependsOn 'assembleRelease'
