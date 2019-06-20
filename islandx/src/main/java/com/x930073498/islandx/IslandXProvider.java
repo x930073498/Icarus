@@ -4,7 +4,7 @@ import android.app.Activity;
 
 import androidx.fragment.app.FragmentActivity;
 
-import com.x930073498.island.IslandProvider;
+import com.x930073498.island.core.IslandProvider;
 import com.x930073498.island.core.Event;
 
 /**

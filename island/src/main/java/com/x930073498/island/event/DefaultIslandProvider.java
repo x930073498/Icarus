@@ -1,8 +1,9 @@
-package com.x930073498.island.core;
+package com.x930073498.island.event;
 
 import android.app.Activity;
 
-import com.x930073498.island.IslandProvider;
+import com.x930073498.island.core.Event;
+import com.x930073498.island.core.IslandProvider;
 
 /**
  * Created by x930073498 on 2019/6/20.

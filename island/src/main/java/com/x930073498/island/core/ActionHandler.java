@@ -101,6 +101,5 @@ public class ActionHandler implements Event {
     @Override
     public ActivityResultEvent request(Intent intent) {
         return new ActivityAction(delegate, this, requestCodeGetter.incrementAndGet(), intent);
-
     }
 }

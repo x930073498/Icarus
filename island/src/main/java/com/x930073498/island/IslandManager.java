@@ -6,8 +6,9 @@ import android.util.Log;
 import com.x930073498.boat.BoatManager;
 import com.x930073498.boat.State;
 import com.x930073498.boat.StateListener;
-import com.x930073498.island.core.DefaultIslandProvider;
+import com.x930073498.island.event.DefaultIslandProvider;
 import com.x930073498.island.core.Event;
+import com.x930073498.island.core.IslandProvider;
 
 import java.util.ArrayList;
 import java.util.Collections;
