@@ -5,22 +5,16 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
 import com.x930073498.adapter.BaseItemWrapper;
 import com.x930073498.adapter.CommonAdapter;
-import com.x930073498.boat.BoatManager;
-import com.x930073498.island.ActivityResultCallback;
+import com.x930073498.island.result.ActivityResultCallback;
 import com.x930073498.island.IslandLoader;
-import com.x930073498.island.MultiplePermissionCallback;
-import com.x930073498.island.MultiplePermissionResult;
-import com.x930073498.island.SinglePermissionCallback;
-import com.x930073498.island.SinglePermissionResult;
-
-import java.util.logging.Logger;
+import com.x930073498.island.permission.SinglePermissionCallback;
+import com.x930073498.island.permission.SinglePermissionResult;
 
 public class MainActivity extends AppCompatActivity {
 

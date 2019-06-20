@@ -13,11 +13,9 @@ import java.util.List;
 import java.util.Map;
 
 public class BoatManager {
-    private static Application mApp;
-
+    private volatile static Application mApp;
     private static List<Activity> activities = Collections.synchronizedList(new ArrayList<Activity>());
     private static Map<Activity, State> map = Collections.synchronizedMap(new ArrayMap<Activity, State>());
-
     private static List<StateListener> mListeners = Collections.synchronizedList(new ArrayList<StateListener>());
 
     private static StateListener listener = new StateListener() {

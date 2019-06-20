@@ -1,4 +1,4 @@
-package com.x930073498.island;
+package com.x930073498.island.permission;
 
 import java.util.ArrayList;
 import java.util.List;

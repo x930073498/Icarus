@@ -1,6 +1,10 @@
-package com.x930073498.island;
+package com.x930073498.island.permission;
 
 import android.content.Intent;
+
+import com.x930073498.island.core.Action;
+import com.x930073498.island.core.ActionDelegate;
+import com.x930073498.island.core.ActionHandler;
 
 /**
  * Created by x930073498 on 2019/6/20.
@@ -11,7 +15,7 @@ public class PermissionAction extends Action implements PermissionEvent {
 
     private boolean hasRequest = false;
 
-    PermissionAction(ActionDelegate delegate, ActionHandler handler, int requestCode, String[] permissions) {
+    public PermissionAction(ActionDelegate delegate, ActionHandler handler, int requestCode, String[] permissions) {
         super(delegate, handler, requestCode);
         this.permissions = permissions;
     }
@@ -37,7 +41,7 @@ public class PermissionAction extends Action implements PermissionEvent {
     }
 
     @Override
-    final void onActivityResult( int resultCode, Intent data) {
+   protected final void onActivityResult( int resultCode, Intent data) {
     }
 
 }

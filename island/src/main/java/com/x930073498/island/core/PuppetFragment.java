@@ -1,42 +1,42 @@
-package com.x930073498.island;
+package com.x930073498.island.core;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 
 import com.x930073498.boat.BoatManager;
 import com.x930073498.boat.State;
 import com.x930073498.boat.StateListener;
+import com.x930073498.island.IslandLoader;
+import com.x930073498.island.core.ActionDelegate;
+import com.x930073498.island.core.ActionHandler;
+import com.x930073498.island.core.Event;
+import com.x930073498.island.permission.PermissionEvent;
+import com.x930073498.island.result.ActivityResultEvent;
 
 /**
  * Created by x930073498 on 2019/6/19.
  */
-public class PuppetXFragment extends Fragment implements Event, ActionDelegate, StateListener {
+public class PuppetFragment extends Fragment implements Event, ActionDelegate, StateListener {
 
-    Activity activity;
+
+    public Activity activity;
     private ActionHandler handler = new ActionHandler(this);
-
     private boolean isAttached = false;
 
-    public PuppetXFragment() {
+    public PuppetFragment() {
         BoatManager.registerStateListener(this);
     }
-
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         handler.onActivityResult(requestCode, resultCode, data);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        handler.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     @Override
@@ -53,9 +53,9 @@ public class PuppetXFragment extends Fragment implements Event, ActionDelegate, 
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        BoatManager.unregisterStateListener(this);
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        handler.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     @Override
@@ -75,17 +75,26 @@ public class PuppetXFragment extends Fragment implements Event, ActionDelegate, 
 
     @Override
     public void requestPermission(int requestCode, String... permissions) {
-        requestPermissions(permissions, requestCode);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            requestPermissions(permissions, requestCode);
+        } else {
+            int[] result = new int[permissions.length];
+            for (int i = 0; i < result.length; i++) {
+                result[i] = PackageManager.PERMISSION_GRANTED;
+            }
+            handler.onRequestPermissionsResult(requestCode, permissions, result);
+        }
     }
 
-    private boolean hasAdd = false;
+    private boolean hasAdded = false;
 
     @Override
     public void attach() {
-        if (isAttached) return;
-        if (activity instanceof FragmentActivity && !hasAdd) {
-            hasAdd = true;
-            ((FragmentActivity) activity).getSupportFragmentManager().beginTransaction().add(this, IslandLoader.TAG).commitAllowingStateLoss();
+        if (!isAttached && !hasAdded) {
+            hasAdded = true;
+            activity.getFragmentManager().beginTransaction()
+                    .add(this, IslandLoader.TAG)
+                    .commitAllowingStateLoss();
         }
     }
 
@@ -96,12 +105,12 @@ public class PuppetXFragment extends Fragment implements Event, ActionDelegate, 
 
     @Override
     public void onState(Activity activity, State state) {
-        if (this.activity == activity) {
+        if (activity == this.activity) {
             if (state == State.RESUMED) {
                 handler.onResume();
             } else if (state == State.PAUSED) {
                 handler.onPause();
-            }else if (state==State.DESTROYED){
+            } else if (state == State.DESTROYED) {
                 handler.onDestroy();
             }
         }

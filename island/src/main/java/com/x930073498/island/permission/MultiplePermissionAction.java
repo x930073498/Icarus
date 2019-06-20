@@ -1,14 +1,16 @@
-package com.x930073498.island;
+package com.x930073498.island.permission;
 
 import android.content.pm.PackageManager;
 
 import androidx.annotation.NonNull;
 
+import com.x930073498.island.core.ActionDelegate;
+import com.x930073498.island.core.ActionHandler;
+
 /**
  * Created by x930073498 on 2019/6/20.
  */
 class MultiplePermissionAction extends PermissionAction {
-    private static final String TAG = "MultiplePermissionAction";
     private MultiplePermissionCallback callback;
 
     MultiplePermissionAction(ActionDelegate delegate, ActionHandler handler, int requestCode, String[] permissions, MultiplePermissionCallback callback) {
@@ -17,7 +19,7 @@ class MultiplePermissionAction extends PermissionAction {
     }
 
     @Override
-    void onRequestPermissionsResult(@NonNull String[] permissions, @NonNull int[] grantResults) {
+    protected void onRequestPermissionsResult(@NonNull String[] permissions, @NonNull int[] grantResults) {
         if (callback != null) {
             MultiplePermissionResult result = new MultiplePermissionResult();
             boolean isAllGranted = true;
@@ -42,7 +44,7 @@ class MultiplePermissionAction extends PermissionAction {
     }
 
     @Override
-    void requestInternal() {
+   protected void requestInternal() {
         delegate.requestPermission(requestCode, permissions);
     }
 }

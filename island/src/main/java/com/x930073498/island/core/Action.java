@@ -1,4 +1,4 @@
-package com.x930073498.island;
+package com.x930073498.island.core;
 
 import android.content.Intent;
 
@@ -18,15 +18,15 @@ public abstract class Action {
         this.delegate = delegate;
     }
 
-    void onRequestPermissionsResult( @NonNull String[] permissions, @NonNull int[] grantResults) {
+    protected void onRequestPermissionsResult(@NonNull String[] permissions, @NonNull int[] grantResults) {
 
     }
 
-    void onActivityResult( int resultCode, Intent data) {
+    protected void onActivityResult(int resultCode, Intent data) {
 
     }
 
-     void requestInternal(){
+    protected void requestInternal() {
 
-     }
+    }
 }

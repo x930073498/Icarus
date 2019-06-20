@@ -1,8 +1,13 @@
-package com.x930073498.island;
+package com.x930073498.island.core;
 
 import android.content.Intent;
 
 import androidx.annotation.NonNull;
+
+import com.x930073498.island.permission.PermissionAction;
+import com.x930073498.island.permission.PermissionEvent;
+import com.x930073498.island.result.ActivityAction;
+import com.x930073498.island.result.ActivityResultEvent;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,7 +42,7 @@ public class ActionHandler implements Event {
     }
 
 
-    void setRequest(boolean request) {
+    public void setRequest(boolean request) {
         isRequest = request;
     }
 
@@ -58,12 +63,12 @@ public class ActionHandler implements Event {
 
     }
 
-    synchronized void addAction(Action action) {
+   public synchronized void addAction(Action action) {
         if (actions.contains(action)) return;
         actions.add(action);
     }
 
-    synchronized void removeAction(Action action) {
+    public synchronized void removeAction(Action action) {
         actions.remove(action);
     }
 

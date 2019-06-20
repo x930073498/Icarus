@@ -9,6 +9,9 @@ import androidx.fragment.app.FragmentActivity;
 import com.x930073498.boat.BoatManager;
 import com.x930073498.boat.State;
 import com.x930073498.boat.StateListener;
+import com.x930073498.island.core.Event;
+import com.x930073498.island.core.PuppetFragment;
+import com.x930073498.island.core.PuppetXFragment;
 
 import java.util.Collections;
 import java.util.Map;
@@ -18,7 +21,7 @@ import java.util.Map;
  */
 public class IslandLoader {
 
-    static final String TAG = System.currentTimeMillis() + "IslandLoader";
+    public static final String TAG = System.currentTimeMillis() + "IslandLoader";
     private static final Map<Activity, Event> map = Collections.synchronizedMap(new ArrayMap<Activity, Event>());
 
     public static Event guess() {
@@ -35,6 +38,7 @@ public class IslandLoader {
             }
         });
     }
+
 
     public synchronized static Event attach(Activity activity) {
         if (activity == null) throw new RuntimeException("activity not found");

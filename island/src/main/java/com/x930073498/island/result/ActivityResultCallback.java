@@ -1,4 +1,4 @@
-package com.x930073498.island;
+package com.x930073498.island.result;
 
 import android.content.Intent;
 
