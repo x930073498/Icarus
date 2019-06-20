@@ -4,5 +4,7 @@ package com.x930073498.island;
  * Created by x930073498 on 2019/6/19.
  */
 public interface SinglePermissionCallback {
-    boolean call(SinglePermissionResult result);
+
+    //返回true表示拦截，不进行下一步的请求
+    boolean intercept(SinglePermissionResult result);
 }

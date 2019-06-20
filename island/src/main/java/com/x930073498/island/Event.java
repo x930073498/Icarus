@@ -7,8 +7,8 @@ import android.content.Intent;
  */
 public interface Event {
 
-    PermissionAction request(String... permission);
+    PermissionEvent request(String... permission);
 
-    ActivityResultAction request(Intent intent);
+    ActivityResultEvent request(Intent intent);
 
 }

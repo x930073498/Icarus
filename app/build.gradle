@@ -32,10 +32,10 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
-    implementation project(':adapter')
-    implementation project(':boat')
-    implementation project(':island')
-//    implementation "com.x930073498.icarus:${ADAPTER_ARTIFACT_ID}:${VERSION_NAME}"
-//    implementation "com.x930073498.icarus:${ISLAND_ARTIFACT_ID}:${VERSION_NAME}"
-//    implementation "com.x930073498.icarus:${BOAT_ARTIFACT_ID}:${VERSION_NAME}"
+    debugImplementation project(':adapter')
+    debugImplementation project(':boat')
+    debugImplementation project(':island')
+    releaseImplementation "com.x930073498.icarus:${ADAPTER_ARTIFACT_ID}:${VERSION_NAME}"
+    releaseImplementation "com.x930073498.icarus:${ISLAND_ARTIFACT_ID}:${VERSION_NAME}"
+    releaseImplementation "com.x930073498.icarus:${BOAT_ARTIFACT_ID}:${VERSION_NAME}"
 }

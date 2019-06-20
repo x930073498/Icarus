@@ -14,118 +14,31 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class ActionHandler implements Event {
 
-
-    private boolean isAttached = false;
-
-    private AtomicInteger requestCodeGetter = new AtomicInteger();
+    private volatile boolean isActive = true;
+    private static AtomicInteger requestCodeGetter = new AtomicInteger(10000);
+    private List<Action> actions = Collections.synchronizedList(new ArrayList<Action>());
 
     private ActionDelegate delegate;
 
     private volatile boolean isRequest = false;
 
-    private List<Action> actions = Collections.synchronizedList(new ArrayList<Action>());
-
-    private class Action implements PermissionAction, ActivityResultAction {
-
-        private String[] permissions;
-        private Intent intent;
-        private ActivityResultCallback resultCallback;
-        private SinglePermissionCallback singleCallback;
-        private MultiplePermissionCallback multipleCallback;
-        private int index = 0;
-
-
-        private int requestCode;
-
-        private boolean isPermissionCheck() {
-            return intent == null;
-        }
-
-        private Action(int requestCode, String... permission) {
-            this.permissions = permission;
-            this.intent = null;
-            this.requestCode = requestCode;
-        }
-
-        private Action(int requestCode, Intent intent) {
-            this.intent = intent;
-            this.permissions = null;
-            this.requestCode = requestCode;
-        }
-
-        @Override
-        public void onResult(ActivityResultCallback callback) {
-            this.resultCallback = callback;
-            if (!actions.contains(this))
-                actions.add(this);
-            request();
-        }
-
-        @Override
-        public void forEach(SinglePermissionCallback callback) {
-            singleCallback = callback;
-            if (!actions.contains(this))
-                actions.add(this);
-            request();
-        }
-
-        @Override
-        public void forAll(MultiplePermissionCallback callback) {
-            multipleCallback = callback;
-            if (!actions.contains(this))
-                actions.add(this);
-            request();
-        }
-
-
-        private void requestInternal() {
-            if (isPermissionCheck()) {
-                if (permissions.length <= 0) {
-                    onRequestPermissionsResult(requestCode, new String[0], new int[0]);
-                    return;
-                }
-                if (multipleCallback != null) {
-                    delegate.requestPermission(requestCode, permissions);
-                } else {
-                    if (index >= permissions.length) {
-
-                    }
-                }
-
-            } else {
-                delegate.startResult(intent, requestCode);
-            }
-        }
-
-        void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-
-            if (multipleCallback != null) {
-
-            } else {
-                if (index >= permissions.length) {
-                    actions.remove(this);
-                    isRequest = false;
-                    request();
-                } else {
-                    requestInternal();
-                }
-            }
-
-        }
-
-        void onActivityResult(int requestCode, int resultCode, Intent data) {
-            if (resultCallback != null) {
-                resultCallback.call(requestCode, resultCode, data);
-            }
-            actions.remove(this);
-            isRequest = false;
-            request();
-        }
-
+    void onResume() {
+        isActive = true;
+        request();
     }
 
-    public void setAttached(boolean attached) {
-        isAttached = attached;
+    void onPause() {
+        isActive = false;
+    }
+
+    void onDestroy() {
+        isActive = false;
+        actions.clear();
+    }
+
+
+    void setRequest(boolean request) {
+        isRequest = request;
     }
 
     ActionHandler(ActionDelegate delegate) {
@@ -135,15 +48,23 @@ public class ActionHandler implements Event {
     void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         Action action = getAction(requestCode);
         if (action != null) {
-            action.onRequestPermissionsResult(requestCode, permissions, grantResults);
+            action.onRequestPermissionsResult(permissions, grantResults);
         }
     }
 
     void onActivityResult(int requestCode, int resultCode, Intent data) {
         Action action = getAction(requestCode);
-        if (action != null) {
-            action.onActivityResult(requestCode, resultCode, data);
-        }
+        if (action != null) action.onActivityResult(resultCode, data);
+
+    }
+
+    synchronized void addAction(Action action) {
+        if (actions.contains(action)) return;
+        actions.add(action);
+    }
+
+    synchronized void removeAction(Action action) {
+        actions.remove(action);
     }
 
     private Action getAction(int requestCode) {
@@ -155,8 +76,12 @@ public class ActionHandler implements Event {
     }
 
     void request() {
-        if (!isAttached) return;
+        if (!delegate.isAttached()) {
+            delegate.attach();
+            return;
+        }
         if (isRequest) return;
+        if (!isActive) return;
         if (actions.isEmpty()) return;
         isRequest = true;
         Action action = actions.get(0);
@@ -165,13 +90,13 @@ public class ActionHandler implements Event {
 
 
     @Override
-    public PermissionAction request(String... permission) {
-        return new Action(requestCodeGetter.incrementAndGet(), permission);
+    public PermissionEvent request(String... permission) {
+        return new PermissionAction(delegate, this, requestCodeGetter.incrementAndGet(), permission);
     }
 
     @Override
-    public ActivityResultAction request(Intent intent) {
-        return new Action(requestCodeGetter.incrementAndGet(), intent);
+    public ActivityResultEvent request(Intent intent) {
+        return new ActivityAction(delegate, this, requestCodeGetter.incrementAndGet(), intent);
 
     }
 }

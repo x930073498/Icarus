@@ -26,7 +26,9 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation "com.x930073498.icarus:${BOAT_ARTIFACT_ID}:${VERSION_NAME}"
+    implementation 'androidx.appcompat:appcompat:1.0.2'
+    debugImplementation project(':boat')
+    releaseImplementation "com.x930073498.icarus:${BOAT_ARTIFACT_ID}:${VERSION_NAME}"
 }
 
 

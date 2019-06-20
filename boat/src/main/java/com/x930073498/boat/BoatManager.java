@@ -3,7 +3,6 @@ package com.x930073498.boat;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.collection.ArrayMap;
@@ -19,6 +18,30 @@ public class BoatManager {
     private static List<Activity> activities = Collections.synchronizedList(new ArrayList<Activity>());
     private static Map<Activity, State> map = Collections.synchronizedMap(new ArrayMap<Activity, State>());
 
+    private static List<StateListener> mListeners = Collections.synchronizedList(new ArrayList<StateListener>());
+
+    private static StateListener listener = new StateListener() {
+        @Override
+        public void onState(Activity activity, State state) {
+            for (StateListener listener : mListeners
+            ) {
+                listener.onState(activity, state);
+            }
+        }
+    };
+
+    public static void registerStateListener(StateListener listener) {
+        if (mListeners.contains(listener)) return;
+        mListeners.add(listener);
+    }
+
+    public static void unregisterStateListener(StateListener... listeners) {
+        for (StateListener listener : listeners
+        ) {
+            mListeners.remove(listener);
+        }
+    }
+
     public static State getState(Activity activity) {
         State state = map.get(activity);
         return state == null ? State.DESTROYED : state;
@@ -28,7 +51,9 @@ public class BoatManager {
         if (activities.isEmpty()) return null;
         return activities.get(0);
     }
-    public static State getTopState(){
+
+
+    public static State getTopState() {
         return getState(getTopActivity());
     }
 
@@ -73,37 +98,44 @@ public class BoatManager {
         public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
             activities.add(0, activity);
             map.put(activity, State.CREATED);
+            listener.onState(activity, State.CREATED);
         }
 
         @Override
         public void onActivityStarted(Activity activity) {
             map.put(activity, State.STARTED);
+            listener.onState(activity, State.STARTED);
         }
 
         @Override
         public void onActivityResumed(Activity activity) {
             map.put(activity, State.RESUMED);
+            listener.onState(activity, State.RESUMED);
         }
 
         @Override
         public void onActivityPaused(Activity activity) {
             map.put(activity, State.PAUSED);
+            listener.onState(activity, State.PAUSED);
         }
 
         @Override
         public void onActivityStopped(Activity activity) {
             map.put(activity, State.STOPPED);
+            listener.onState(activity, State.STOPPED);
         }
 
         @Override
         public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
             map.put(activity, State.SAVE_INSTANCE_STATE);
+            listener.onState(activity, State.SAVE_INSTANCE_STATE);
         }
 
         @Override
         public void onActivityDestroyed(Activity activity) {
             activities.remove(activity);
             map.remove(activity);
+            listener.onState(activity, State.DESTROYED);
         }
     }
 
