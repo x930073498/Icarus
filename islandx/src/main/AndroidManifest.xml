@@ -4,7 +4,7 @@
     <application>
         <provider
             android:name=".IslandXContentProvider"
-            android:authorities="com.x930073498.islandx"
+            android:authorities="${applicationId}.com.x930073498.islandx"
             android:exported="false" />
 
     </application>

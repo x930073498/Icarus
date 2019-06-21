@@ -19,6 +19,12 @@ import com.x930073498.island.IslandManager;
 import com.x930073498.island.permission.MultiplePermissionCallback;
 import com.x930073498.island.permission.MultiplePermissionResult;
 import com.x930073498.island.result.ActivityResultCallback;
+import com.x930073498.oar.FastHookCallback;
+import com.x930073498.oar.FastHookManager;
+import com.x930073498.oar.FastHookParam;
+
+import java.lang.reflect.Method;
+import java.util.logging.Logger;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -27,51 +33,64 @@ public class MainActivity extends AppCompatActivity {
     private String TAG = "MainActivity";
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        Log.e("resume","enter this line 3");
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        try {
+            Method method = Activity.class.getDeclaredMethod("onResume");
+            Log.e("method",""+method);
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
         recycler = findViewById(R.id.recycler);
         recycler.setLayoutManager(new LinearLayoutManager(this));
         recycler.setAdapter(adapter);
+
         BoatManager.registerStateChangeListener(this, new StateListener() {
             @Override
             public void onState(Activity activity, State state) {
 
             }
         });
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                //        Intent intent = new Intent();
-                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.setType("image/*");
-                IslandManager.guess().request(intent).onResult(new ActivityResultCallback() {
-                    @Override
-                    public void call(int resultCode, Intent data) {
-                        if (resultCode == RESULT_OK)
-                            Log.e(TAG, "call: data=" + data.getData());
-                        else if (resultCode == RESULT_CANCELED) {
-                            Log.e(TAG, "isCanceled");
-                        }
-                    }
-                });
-                IslandManager.guess().request(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_PHONE_STATE)
-//                .forEach(new SinglePermissionCallback() {
+//
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                //        Intent intent = new Intent();
+//                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+//                intent.setType("image/*");
+//                IslandManager.guess().request(intent).onResult(new ActivityResultCallback() {
 //                    @Override
-//                    public boolean intercept(SinglePermissionResult result) {
-//                        Log.e(TAG, "name=" + result.getName() + "   isGranted=" + result.isGranted());
-//                        return !result.isGranted();
+//                    public void call(int resultCode, Intent data) {
+//                        if (resultCode == RESULT_OK)
+//                            Log.e(TAG, "call: data=" + data.getData());
+//                        else if (resultCode == RESULT_CANCELED) {
+//                            Log.e(TAG, "isCanceled");
+//                        }
 //                    }
-//                })
-                        .forAll(new MultiplePermissionCallback() {
-                            @Override
-                            public void call(MultiplePermissionResult result) {
-                                Log.e(TAG, "call: result="+result );
-                            }
-                        });
-            }
-        }).start();
+//                });
+//                IslandManager.guess().request(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_PHONE_STATE)
+////                .forEach(new SinglePermissionCallback() {
+////                    @Override
+////                    public boolean intercept(SinglePermissionResult result) {
+////                        Log.e(TAG, "name=" + result.getName() + "   isGranted=" + result.isGranted());
+////                        return !result.isGranted();
+////                    }
+////                })
+//                        .forAll(new MultiplePermissionCallback() {
+//                            @Override
+//                            public void call(MultiplePermissionResult result) {
+//                                Log.e(TAG, "call: result="+result );
+//                            }
+//                        });
+//            }
+//        }).start();
 
 
         recycler.postDelayed(new Runnable() {

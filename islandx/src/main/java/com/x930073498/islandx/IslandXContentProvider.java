@@ -4,11 +4,14 @@ import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.x930073498.island.IslandManager;
+
+import java.lang.reflect.Field;
 
 /**
  * Created by x930073498 on 2019/6/20.
@@ -16,6 +19,16 @@ import com.x930073498.island.IslandManager;
 public class IslandXContentProvider extends ContentProvider {
     @Override
     public boolean onCreate() {
+
+        try {
+            Field field = ContentProvider.class.getDeclaredField("mAuthority");
+            field.setAccessible(true);
+            Log.e("mAuthority",field.get(this).toString());
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
         IslandManager.register(new IslandXProvider());
         return false;
     }
