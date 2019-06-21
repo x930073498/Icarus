@@ -1,5 +1,6 @@
 package com.x930073498.app;
 
+import android.app.Activity;
 import android.app.Application;
 import android.util.Log;
 
@@ -14,7 +15,7 @@ public class App extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        FastHookManager.doHook(MainActivity.class.getName(), null, "onResume", "V", new FastHookCallback() {
+        FastHookManager.doHook(Activity.class.getName(), null, "onResume", "V", new FastHookCallback() {
             @Override
             public void beforeHookedMethod(FastHookParam param) {
                 Log.e("before","enter this line 1");
@@ -26,6 +27,6 @@ public class App extends Application {
                 Log.e("after","enter this line 2");
                 Log.e("after param",""+param);
             }
-        },FastHookManager.MODE_REPLACE,true);
+        },FastHookManager.MODE_REWRITE,true);
     }
 }
