@@ -37,6 +37,8 @@ dependencies {
 
     implementation 'androidx.recyclerview:recyclerview:1.0.0'
     implementation 'androidx.appcompat:appcompat:1.0.2'
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.0.0'
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
@@ -45,9 +47,12 @@ dependencies {
     debugImplementation project(':island')
     debugImplementation project(':islandx')
     debugImplementation project(':oar')
+    debugImplementation project(':wind')
     releaseImplementation "com.x930073498.icarus:${ADAPTER_ARTIFACT_ID}:${VERSION_NAME}"
     releaseImplementation "com.x930073498.icarus:${ISLAND_ARTIFACT_ID}:${VERSION_NAME}"
     releaseImplementation "com.x930073498.icarus:${ISLANDX_ARTIFACT_ID}:${VERSION_NAME}"
     releaseImplementation "com.x930073498.icarus:${BOAT_ARTIFACT_ID}:${VERSION_NAME}"
     releaseImplementation "com.x930073498.icarus:${OAR_ARTIFACT_ID}:${VERSION_NAME}"
+    releaseImplementation "com.x930073498.icarus:${WIND_ARTIFACT_ID}:${VERSION_NAME}"
+    implementation 'com.squareup.leakcanary:leakcanary-android:1.6.3'
 }

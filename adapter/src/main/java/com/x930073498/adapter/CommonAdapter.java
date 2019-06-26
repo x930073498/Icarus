@@ -13,12 +13,15 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Created by x930073498 on 2019/6/19.
+ * recyclerView的adapter
+ *
  */
 public class CommonAdapter extends RecyclerView.Adapter<CommonHolder> {
-    private List<BaseItem> source = new ArrayList<>();
+    private List<BaseItem> source = new CopyOnWriteArrayList<>();
     private SparseArray<BaseItem> types = new SparseArray<>();
 
 
@@ -151,6 +154,34 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonHolder> {
 
     public List<BaseItem> getSource() {
         return new ArrayList<>(source);
+    }
+
+    public synchronized List<Object> getSourceData() {
+        List<Object> result = new ArrayList<>();
+        Object data;
+        for (BaseItem item : source
+        ) {
+            if (item == null) continue;
+            data = item.getData();
+            if (data == null) continue;
+            result.add(data);
+        }
+        return result;
+    }
+
+
+    public synchronized int indexOf(BaseItem item) {
+        return source.indexOf(item);
+    }
+
+
+    public synchronized int indexOf(Object data) {
+        BaseItem item;
+        for (int i = 0; i < source.size(); i++) {
+            item = source.get(i);
+            if (item.getData() == data) return i;
+        }
+        return -1;
     }
 
     @NonNull

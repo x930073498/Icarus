@@ -17,6 +17,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * android 5.0及以上的AOP hook
+ */
 public class FastHookManager {
     private static final String TAG = "FastHookManager";
     private static final boolean DEBUG = BuildConfig.DEBUG;
@@ -62,163 +65,163 @@ public class FastHookManager {
     private final static String PROXY_CLASS_NAME = "com/x930073498/oar.proxy";
     private final static String GENERATEPROXY = "generateProxy";
 
-    private static HashMap<Member,HookRecord> mHookMap;
-    private static HashMap<Long,ArrayList<HookRecord>> mQuickTrampolineMap;
-    private static HashMap<Member,HookInfo> mHookInfoMap;
+    private static HashMap<Member, HookRecord> mHookMap;
+    private static HashMap<Long, ArrayList<HookRecord>> mQuickTrampolineMap;
+    private static HashMap<Member, HookInfo> mHookInfoMap;
     private static Handler mHandler;
     private static long mThread;
 
-    static{
+    static {
         System.loadLibrary(HOOK_LIB);
-        mHookMap = new HashMap<Member,HookRecord>();
-        mQuickTrampolineMap = new HashMap<Long,ArrayList<HookRecord>>();
-        mHookInfoMap = new HashMap<Member,HookInfo>();
+        mHookMap = new HashMap<Member, HookRecord>();
+        mQuickTrampolineMap = new HashMap<Long, ArrayList<HookRecord>>();
+        mHookInfoMap = new HashMap<Member, HookInfo>();
         mHandler = new HookHandler();
         init(Build.VERSION.SDK_INT);
-        if(Build.VERSION.SDK_INT >= ANDROID_P) {
+        if (Build.VERSION.SDK_INT >= ANDROID_P) {
             disableHiddenApiCheck();
         }
         Logd("Init");
     }
 
     public static void doHook(String className, ClassLoader classLoader, String methodName, String methodSig, FastHookCallback callback, int mode, boolean jitInline) {
-        if(className == null || methodName == null || methodSig == null || callback == null) {
+        if (className == null || methodName == null || methodSig == null || callback == null) {
             throwException(new FastHookException("invalid param"));
             return;
         }
 
-        Class[] paramType = getParamType(methodSig,classLoader);
+        Class[] paramType = getParamType(methodSig, classLoader);
 
         try {
             Class targetClass = null;
-            if(classLoader != null) {
-                targetClass = Class.forName(className,true,classLoader);
-            }else {
+            if (classLoader != null) {
+                targetClass = Class.forName(className, true, classLoader);
+            } else {
                 targetClass = Class.forName(className);
             }
 
-            if(targetClass == null) {
+            if (targetClass == null) {
                 throwException(new FastHookException("targetClass is null!"));
                 return;
             }
 
             Member targetMethod = null;
-            if(methodName.equals(CONSTRUCTOR)) {
+            if (methodName.equals(CONSTRUCTOR)) {
                 targetMethod = targetClass.getDeclaredConstructor(paramType);
-            }else {
-                targetMethod = targetClass.getDeclaredMethod(methodName,paramType);
+            } else {
+                targetMethod = targetClass.getDeclaredMethod(methodName, paramType);
             }
 
-            if(targetMethod == null) {
+            if (targetMethod == null) {
                 throwException(new FastHookException("targetMethod is null!"));
                 return;
             }
 
             HookRecord hookRecord = mHookMap.get(targetMethod);
-            if(hookRecord != null) {
+            if (hookRecord != null) {
                 throwException(new FastHookException("already hook"));
                 return;
             }
 
             Member hookMethod = getHookHandle(targetMethod);
-            if(hookMethod == null) {
+            if (hookMethod == null) {
                 throwException(new FastHookException("hookMethod is null!"));
                 return;
             }
 
-            Member forwardMethod = generateForwardMethod(targetMethod,FastHookManager.class.getClassLoader(),paramType);
-            if(forwardMethod == null) {
+            Member forwardMethod = generateForwardMethod(targetMethod, FastHookManager.class.getClassLoader(), paramType);
+            if (forwardMethod == null) {
                 throwException(new FastHookException("forwardMethod is null!"));
                 return;
             }
 
-            doHook(targetMethod,hookMethod,forwardMethod,paramType,callback,mode,0);
+            doHook(targetMethod, hookMethod, forwardMethod, paramType, callback, mode, 0);
 
-            if(!jitInline  && Build.VERSION.SDK_INT >= ANDROID_N) {
+            if (!jitInline && Build.VERSION.SDK_INT >= ANDROID_N) {
                 disableJITInline();
             }
-        }catch (Exception e) {
+        } catch (Exception e) {
             throwException(e);
         }
     }
 
     private static void doHook(Member targetMethod, Member hookMethod, Member forwardMethod, Class[] paramType, FastHookCallback callback, int mode, int retryCount) {
         boolean isStatic = false;
-        if(isStaticMethod(targetMethod)) {
+        if (isStaticMethod(targetMethod)) {
             isStatic = true;
         }
 
         boolean isNative = false;
-        if(isNativeMethod(targetMethod)) {
+        if (isNativeMethod(targetMethod)) {
             mode = MODE_REPLACE;
             isNative = true;
             Logd("do replace hook for native method");
         }
 
-        if(mode == MODE_REPLACE && Build.VERSION.SDK_INT == ANDROID_L && !isNative) {
+        if (mode == MODE_REPLACE && Build.VERSION.SDK_INT == ANDROID_L && !isNative) {
             mode = MODE_REWRITE;
         }
 
         switch (mode) {
             case MODE_REWRITE:
                 long entryPoint = getMethodEntryPoint(targetMethod);
-                Logd("EntryPoint:0x"+Long.toHexString(entryPoint));
+                Logd("EntryPoint:0x" + Long.toHexString(entryPoint));
 
                 ArrayList<HookRecord> quickTrampolineList = mQuickTrampolineMap.get(Long.valueOf(entryPoint));
-                if(quickTrampolineList != null) {
+                if (quickTrampolineList != null) {
                     int i = 0;
-                    for(HookRecord record:quickTrampolineList) {
-                        Logd("record["+i+"]:"+record);
+                    for (HookRecord record : quickTrampolineList) {
+                        Logd("record[" + i + "]:" + record);
                     }
 
                     HookRecord tailRecord = quickTrampolineList.get(quickTrampolineList.size() - 1);
                     HookRecord prevRecord = quickTrampolineList.get(quickTrampolineList.size() - 2);
-                    long quickOriginalTrampoline =  tailRecord.mQuickOriginalTrampoline;
+                    long quickOriginalTrampoline = tailRecord.mQuickOriginalTrampoline;
                     long prevQuickHookTrampoline = prevRecord.mQuickHookTrampoline;
                     HookRecord targetRecord = new HookRecord(TYPE_RECORD_REWRITE, targetMethod, hookMethod, forwardMethod, 0, 0, 1, quickTrampolineList);
 
-                    doPartRewriteHook(targetMethod,hookMethod,forwardMethod,quickOriginalTrampoline,prevQuickHookTrampoline,targetRecord);
-                    Logd("QuickHookTrampoline:0x"+Long.toHexString(targetRecord.mQuickHookTrampoline)+" QuickTargetTrampoline:0x"+Long.toHexString(targetRecord.mQuickTargetTrampoline));
+                    doPartRewriteHook(targetMethod, hookMethod, forwardMethod, quickOriginalTrampoline, prevQuickHookTrampoline, targetRecord);
+                    Logd("QuickHookTrampoline:0x" + Long.toHexString(targetRecord.mQuickHookTrampoline) + " QuickTargetTrampoline:0x" + Long.toHexString(targetRecord.mQuickTargetTrampoline));
 
-                    quickTrampolineList.add(quickTrampolineList.size() - 1,targetRecord);
+                    quickTrampolineList.add(quickTrampolineList.size() - 1, targetRecord);
                     targetRecord.index = quickTrampolineList.size() - 2;
                     tailRecord.index = quickTrampolineList.size() - 1;
-                    mHookMap.put(targetMethod,targetRecord);
+                    mHookMap.put(targetMethod, targetRecord);
 
-                    HookInfo hookInfo = new HookInfo(forwardMethod,callback,paramType,isStatic);
-                    mHookInfoMap.put(targetMethod,hookInfo);
-                }else {
-                    if(Build.VERSION.SDK_INT < ANDROID_N) {
+                    HookInfo hookInfo = new HookInfo(forwardMethod, callback, paramType, isStatic);
+                    mHookInfoMap.put(targetMethod, hookInfo);
+                } else {
+                    if (Build.VERSION.SDK_INT < ANDROID_N) {
                         boolean success = isCompiled(targetMethod);
-                        if(success) {
+                        if (success) {
                             success = doRewriteHookCheck(targetMethod);
                         }
 
-                        if(success) {
-                            doFullRewriteHookInternal(targetMethod,hookMethod,forwardMethod);
+                        if (success) {
+                            doFullRewriteHookInternal(targetMethod, hookMethod, forwardMethod);
 
-                            HookInfo hookInfo = new HookInfo(forwardMethod,callback,paramType,isStatic);
-                            mHookInfoMap.put(targetMethod,hookInfo);
-                        }else {
-                            if(Build.VERSION.SDK_INT == ANDROID_L) {
+                            HookInfo hookInfo = new HookInfo(forwardMethod, callback, paramType, isStatic);
+                            mHookInfoMap.put(targetMethod, hookInfo);
+                        } else {
+                            if (Build.VERSION.SDK_INT == ANDROID_L) {
                                 throwException(new FastHookException("hook failed!"));
                                 return;
                             }
-                            doReplaceHookInternal(targetMethod,hookMethod,forwardMethod,isNative);
+                            doReplaceHookInternal(targetMethod, hookMethod, forwardMethod, isNative);
 
-                            HookInfo hookInfo = new HookInfo(forwardMethod,callback,paramType,isStatic);
-                            mHookInfoMap.put(targetMethod,hookInfo);
+                            HookInfo hookInfo = new HookInfo(forwardMethod, callback, paramType, isStatic);
+                            mHookInfoMap.put(targetMethod, hookInfo);
                         }
-                    }else {
+                    } else {
                         int jitState = checkJitState(targetMethod);
-                        Logd("jitState:"+jitState);
+                        Logd("jitState:" + jitState);
 
                         switch (jitState) {
                             case JIT_COMPILING:
                             case JIT_COMPILINGORFAILED:
                                 if (retryCount < RETRY_LIMIT) {
                                     int newCount = retryCount + 1;
-                                    sendRetryMessage(targetMethod,hookMethod,forwardMethod,paramType,callback,mode,newCount);
+                                    sendRetryMessage(targetMethod, hookMethod, forwardMethod, paramType, callback, mode, newCount);
                                     break;
                                 }
                             case JIT_NONE:
@@ -226,36 +229,36 @@ public class FastHookManager {
                                 boolean success = true;
                                 boolean needCompile = !isCompiled(targetMethod);
 
-                                if(jitState == JIT_NONE && needCompile) {
+                                if (jitState == JIT_NONE && needCompile) {
                                     success = compileMethod(targetMethod);
 
-                                    if(success) {
+                                    if (success) {
                                         success = doRewriteHookCheck(targetMethod);
                                     }
-                                }else if(jitState == JIT_COMPILE) {
+                                } else if (jitState == JIT_COMPILE) {
                                     success = doRewriteHookCheck(targetMethod);
-                                }else if(jitState == JIT_COMPILINGORFAILED) {
+                                } else if (jitState == JIT_COMPILINGORFAILED) {
                                     success = false;
                                 }
 
-                                if(success) {
-                                    doFullRewriteHookInternal(targetMethod,hookMethod,forwardMethod);
+                                if (success) {
+                                    doFullRewriteHookInternal(targetMethod, hookMethod, forwardMethod);
 
-                                    HookInfo hookInfo = new HookInfo(forwardMethod,callback,paramType,isStatic);
-                                    mHookInfoMap.put(targetMethod,hookInfo);
-                                }else {
-                                    if(Build.VERSION.SDK_INT == ANDROID_L) {
+                                    HookInfo hookInfo = new HookInfo(forwardMethod, callback, paramType, isStatic);
+                                    mHookInfoMap.put(targetMethod, hookInfo);
+                                } else {
+                                    if (Build.VERSION.SDK_INT == ANDROID_L) {
                                         throwException(new FastHookException("hook failed!"));
                                         return;
                                     }
-                                    if(Build.VERSION.SDK_INT >= ANDROID_O && BuildConfig.DEBUG) {
+                                    if (Build.VERSION.SDK_INT >= ANDROID_O && BuildConfig.DEBUG) {
                                         setNativeMethod(targetMethod);
                                         Logd("set target method to native on debug mode");
                                     }
-                                    doReplaceHookInternal(targetMethod,hookMethod,forwardMethod,isNative);
+                                    doReplaceHookInternal(targetMethod, hookMethod, forwardMethod, isNative);
 
-                                    HookInfo hookInfo = new HookInfo(forwardMethod,callback,paramType,isStatic);
-                                    mHookInfoMap.put(targetMethod,hookInfo);
+                                    HookInfo hookInfo = new HookInfo(forwardMethod, callback, paramType, isStatic);
+                                    mHookInfoMap.put(targetMethod, hookInfo);
                                 }
                                 break;
                         }
@@ -263,31 +266,31 @@ public class FastHookManager {
                 }
                 break;
             case MODE_REPLACE:
-                if(Build.VERSION.SDK_INT < ANDROID_N) {
-                    doReplaceHookInternal(targetMethod,hookMethod,forwardMethod,isNative);
-                    HookInfo hookInfo = new HookInfo(forwardMethod,callback,paramType,isStatic);
-                    mHookInfoMap.put(targetMethod,hookInfo);
-                }else {
+                if (Build.VERSION.SDK_INT < ANDROID_N) {
+                    doReplaceHookInternal(targetMethod, hookMethod, forwardMethod, isNative);
+                    HookInfo hookInfo = new HookInfo(forwardMethod, callback, paramType, isStatic);
+                    mHookInfoMap.put(targetMethod, hookInfo);
+                } else {
                     int jitState = checkJitState(targetMethod);
-                    Logd("jitState:"+jitState);
+                    Logd("jitState:" + jitState);
 
                     switch (jitState) {
                         case JIT_COMPILING:
                         case JIT_COMPILINGORFAILED:
                             if (retryCount < RETRY_LIMIT) {
                                 int newCount = retryCount + 1;
-                                sendRetryMessage(targetMethod,hookMethod,forwardMethod,paramType,callback,mode,newCount);
+                                sendRetryMessage(targetMethod, hookMethod, forwardMethod, paramType, callback, mode, newCount);
                                 break;
                             }
                         case JIT_NONE:
                         case JIT_COMPILE:
-                            if(Build.VERSION.SDK_INT >= ANDROID_O && BuildConfig.DEBUG) {
+                            if (Build.VERSION.SDK_INT >= ANDROID_O && BuildConfig.DEBUG) {
                                 setNativeMethod(targetMethod);
                                 Logd("set target method to native on debug mode");
                             }
-                            doReplaceHookInternal(targetMethod,hookMethod,forwardMethod,isNative);
-                            HookInfo hookInfo = new HookInfo(forwardMethod,callback,paramType,isStatic);
-                            mHookInfoMap.put(targetMethod,hookInfo);
+                            doReplaceHookInternal(targetMethod, hookMethod, forwardMethod, isNative);
+                            HookInfo hookInfo = new HookInfo(forwardMethod, callback, paramType, isStatic);
+                            mHookInfoMap.put(targetMethod, hookInfo);
                             break;
                     }
                 }
@@ -300,10 +303,10 @@ public class FastHookManager {
 
         HookInfo hookInfo = mHookInfoMap.get(targetMethod);
         FastHookCallback callback = hookInfo.mCallback;
-        FastHookParam param = parseParam(sp,hookInfo.mParamType,hookInfo.mIsStatic);
+        FastHookParam param = parseParam(sp, hookInfo.mParamType, hookInfo.mIsStatic);
 
         callback.beforeHookedMethod(param);
-        if(param.replace) {
+        if (param.replace) {
             return param;
         }
 
@@ -311,9 +314,9 @@ public class FastHookManager {
         forwardMethod.setAccessible(true);
 
         try {
-            param.result = forwardMethod.invoke(param.receiver,param.args);
+            param.result = forwardMethod.invoke(param.receiver, param.args);
             callback.afterHookedMethod(param);
-        }catch (Exception e) {
+        } catch (Exception e) {
             throwException(new FastHookException(e));
         }
 
@@ -325,10 +328,10 @@ public class FastHookManager {
 
         HookInfo hookInfo = mHookInfoMap.get(targetMethod);
         FastHookCallback callback = hookInfo.mCallback;
-        FastHookParam param = parseParam(sp,r11,hookInfo.mParamType,hookInfo.mIsStatic);
+        FastHookParam param = parseParam(sp, r11, hookInfo.mParamType, hookInfo.mIsStatic);
 
         callback.beforeHookedMethod(param);
-        if(param.replace) {
+        if (param.replace) {
             return param;
         }
 
@@ -336,9 +339,9 @@ public class FastHookManager {
         forwardMethod.setAccessible(true);
 
         try {
-            param.result = forwardMethod.invoke(param.receiver,param.args);
+            param.result = forwardMethod.invoke(param.receiver, param.args);
             callback.afterHookedMethod(param);
-        }catch (Exception e) {
+        } catch (Exception e) {
             throwException(new FastHookException(e));
         }
 
@@ -346,177 +349,177 @@ public class FastHookManager {
     }
 
     private static Object hookHandleObject(int targetArtMethod, int sp, int r11) {
-        FastHookParam param = hookHandle(targetArtMethod,sp,r11);
+        FastHookParam param = hookHandle(targetArtMethod, sp, r11);
         return param.result;
     }
 
     private static boolean hookHandleBoolean(int targetArtMethod, int sp, int r11) {
-        FastHookParam param = hookHandle(targetArtMethod,sp,r11);
-        if(param.result != null && param.result instanceof Boolean) {
+        FastHookParam param = hookHandle(targetArtMethod, sp, r11);
+        if (param.result != null && param.result instanceof Boolean) {
             return ((Boolean) param.result).booleanValue();
         }
         return false;
     }
 
     private static byte hookHandleByte(int targetArtMethod, int sp, int r11) {
-        FastHookParam param = hookHandle(targetArtMethod,sp,r11);
-        if(param.result != null && param.result instanceof Byte) {
+        FastHookParam param = hookHandle(targetArtMethod, sp, r11);
+        if (param.result != null && param.result instanceof Byte) {
             return ((Byte) param.result).byteValue();
         }
         return 0;
     }
 
     private static char hookHandleChar(int targetArtMethod, int sp, int r11) {
-        FastHookParam param = hookHandle(targetArtMethod,sp,r11);
-        if(param.result != null && param.result instanceof Character) {
+        FastHookParam param = hookHandle(targetArtMethod, sp, r11);
+        if (param.result != null && param.result instanceof Character) {
             return ((Character) param.result).charValue();
         }
         return 0;
     }
 
     private static short hookHandleShort(int targetArtMethod, int sp, int r11) {
-        FastHookParam param = hookHandle(targetArtMethod,sp,r11);
-        if(param.result != null && param.result instanceof Short) {
+        FastHookParam param = hookHandle(targetArtMethod, sp, r11);
+        if (param.result != null && param.result instanceof Short) {
             return ((Short) param.result).shortValue();
         }
         return 0;
     }
 
     private static int hookHandleInt(int targetArtMethod, int sp, int r11) {
-        FastHookParam param = hookHandle(targetArtMethod,sp,r11);
-        if(param.result != null && param.result instanceof Integer) {
+        FastHookParam param = hookHandle(targetArtMethod, sp, r11);
+        if (param.result != null && param.result instanceof Integer) {
             return ((Integer) param.result).intValue();
         }
         return 0;
     }
 
     private static long hookHandleLong(int targetArtMethod, int sp, int r11) {
-        FastHookParam param = hookHandle(targetArtMethod,sp,r11);
-        if(param.result != null && param.result instanceof Long) {
+        FastHookParam param = hookHandle(targetArtMethod, sp, r11);
+        if (param.result != null && param.result instanceof Long) {
             return ((Long) param.result).longValue();
         }
         return 0;
     }
 
     private static float hookHandleFloat(int targetArtMethod, int sp, int r11) {
-        FastHookParam param = hookHandle(targetArtMethod,sp,r11);
-        if(param.result != null && param.result instanceof Float) {
+        FastHookParam param = hookHandle(targetArtMethod, sp, r11);
+        if (param.result != null && param.result instanceof Float) {
             return ((Float) param.result).floatValue();
         }
         return 0;
     }
 
     private static double hookHandleDouble(int targetArtMethod, int sp, int r11) {
-        FastHookParam param = hookHandle(targetArtMethod,sp,r11);
-        if(param.result != null && param.result instanceof Double) {
+        FastHookParam param = hookHandle(targetArtMethod, sp, r11);
+        if (param.result != null && param.result instanceof Double) {
             return ((Double) param.result).doubleValue();
         }
         return 0;
     }
 
     private static void hookHandleVoid(int targetArtMethod, int sp, int r11) {
-        hookHandle(targetArtMethod,sp,r11);
+        hookHandle(targetArtMethod, sp, r11);
         return;
     }
 
     private static Object hookHandleObject(long targetArtMethod, long sp) {
-        FastHookParam param = hookHandle(targetArtMethod,sp);
+        FastHookParam param = hookHandle(targetArtMethod, sp);
         return param.result;
     }
 
     private static boolean hookHandleBoolean(long targetArtMethod, long sp) {
-        FastHookParam param = hookHandle(targetArtMethod,sp);
-        if(param.result != null && param.result instanceof Boolean) {
+        FastHookParam param = hookHandle(targetArtMethod, sp);
+        if (param.result != null && param.result instanceof Boolean) {
             return ((Boolean) param.result).booleanValue();
         }
         return false;
     }
 
     private static byte hookHandleByte(long targetArtMethod, long sp) {
-        FastHookParam param = hookHandle(targetArtMethod,sp);
-        if(param.result != null && param.result instanceof Byte) {
+        FastHookParam param = hookHandle(targetArtMethod, sp);
+        if (param.result != null && param.result instanceof Byte) {
             return ((Byte) param.result).byteValue();
         }
         return 0;
     }
 
     private static char hookHandleChar(long targetArtMethod, long sp) {
-        FastHookParam param = hookHandle(targetArtMethod,sp);
-        if(param.result != null && param.result instanceof Character) {
+        FastHookParam param = hookHandle(targetArtMethod, sp);
+        if (param.result != null && param.result instanceof Character) {
             return ((Character) param.result).charValue();
         }
         return 0;
     }
 
     private static short hookHandleShort(long targetArtMethod, long sp) {
-        FastHookParam param = hookHandle(targetArtMethod,sp);
-        if(param.result != null && param.result instanceof Short) {
+        FastHookParam param = hookHandle(targetArtMethod, sp);
+        if (param.result != null && param.result instanceof Short) {
             return ((Short) param.result).shortValue();
         }
         return 0;
     }
 
     private static int hookHandleInt(long targetArtMethod, long sp) {
-        FastHookParam param = hookHandle(targetArtMethod,sp);
-        if(param.result != null && param.result instanceof Integer) {
+        FastHookParam param = hookHandle(targetArtMethod, sp);
+        if (param.result != null && param.result instanceof Integer) {
             return ((Integer) param.result).intValue();
         }
         return 0;
     }
 
     private static long hookHandleLong(long targetArtMethod, long sp) {
-        FastHookParam param = hookHandle(targetArtMethod,sp);
-        if(param.result != null && param.result instanceof Long) {
+        FastHookParam param = hookHandle(targetArtMethod, sp);
+        if (param.result != null && param.result instanceof Long) {
             return ((Long) param.result).longValue();
         }
         return 0;
     }
 
     private static float hookHandleFloat(long targetArtMethod, long sp) {
-        FastHookParam param = hookHandle(targetArtMethod,sp);
-        if(param.result != null && param.result instanceof Float) {
+        FastHookParam param = hookHandle(targetArtMethod, sp);
+        if (param.result != null && param.result instanceof Float) {
             return ((Float) param.result).floatValue();
         }
         return 0;
     }
 
     private static double hookHandleDouble(long targetArtMethod, long sp) {
-        FastHookParam param = hookHandle(targetArtMethod,sp);
-        if(param.result != null && param.result instanceof Double) {
+        FastHookParam param = hookHandle(targetArtMethod, sp);
+        if (param.result != null && param.result instanceof Double) {
             return ((Double) param.result).doubleValue();
         }
         return 0;
     }
 
     private static void hookHandleVoid(long targetArtMethod, long sp) {
-        hookHandle(targetArtMethod,sp);
+        hookHandle(targetArtMethod, sp);
         return;
     }
 
     private static Member getHookHandle(Member targetMethod) {
-        if(targetMethod instanceof Constructor) {
+        if (targetMethod instanceof Constructor) {
             return getMethod("hookHandleVoid");
-        }else if(targetMethod instanceof Method) {
-            Class returnType = ((Method)targetMethod).getReturnType();
-            if(returnType == boolean.class) {
+        } else if (targetMethod instanceof Method) {
+            Class returnType = ((Method) targetMethod).getReturnType();
+            if (returnType == boolean.class) {
                 return getMethod("hookHandleBoolean");
-            }else if(returnType == byte.class) {
+            } else if (returnType == byte.class) {
                 return getMethod("hookHandleByte");
-            }else if(returnType == char.class) {
+            } else if (returnType == char.class) {
                 return getMethod("hookHandleChar");
-            }else if(returnType == short.class) {
+            } else if (returnType == short.class) {
                 return getMethod("hookHandleShort");
-            }else if(returnType == int.class) {
+            } else if (returnType == int.class) {
                 return getMethod("hookHandleInt");
-            }else if(returnType == long.class) {
+            } else if (returnType == long.class) {
                 return getMethod("hookHandleLong");
-            }else if(returnType == float.class) {
+            } else if (returnType == float.class) {
                 return getMethod("hookHandleFloat");
-            }else if(returnType == double.class) {
+            } else if (returnType == double.class) {
                 return getMethod("hookHandleDouble");
-            }else if(returnType == void.class) {
+            } else if (returnType == void.class) {
                 return getMethod("hookHandleVoid");
-            }else {
+            } else {
                 return getMethod("hookHandleObject");
             }
         }
@@ -528,12 +531,12 @@ public class FastHookManager {
         Member method = null;
 
         try {
-            if(is32bit()) {
-                method = FastHookManager.class.getDeclaredMethod(methodName,int.class,int.class,int.class);
-            }else {
-                method = FastHookManager.class.getDeclaredMethod(methodName,long.class,long.class);
+            if (is32bit()) {
+                method = FastHookManager.class.getDeclaredMethod(methodName, int.class, int.class, int.class);
+            } else {
+                method = FastHookManager.class.getDeclaredMethod(methodName, long.class, long.class);
             }
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -545,7 +548,7 @@ public class FastHookManager {
 
         int index = 0;
         ArrayList<Class> paramsArray = new ArrayList<Class>();
-        while(index < paramSig.length()) {
+        while (index < paramSig.length()) {
             switch (paramSig.charAt(index)) {
                 case 'B': // byte
                     paramsArray.add(byte.class);
@@ -573,31 +576,31 @@ public class FastHookManager {
                     break;
                 case 'L':
                     try {
-                        String objectClass = getObjectClass(index,paramSig);
+                        String objectClass = getObjectClass(index, paramSig);
 
-                        if(targetClassLoader != null) {
-                            paramsArray.add(Class.forName(objectClass,true,targetClassLoader));
-                        }else {
+                        if (targetClassLoader != null) {
+                            paramsArray.add(Class.forName(objectClass, true, targetClassLoader));
+                        } else {
                             paramsArray.add(Class.forName(objectClass));
                         }
 
                         index += objectClass.length() + 1;
-                    }catch (Exception e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                     break;
                 case '[':
                     try {
-                        String arrayClass = getArrayClass(index,paramSig);
+                        String arrayClass = getArrayClass(index, paramSig);
 
-                        if(targetClassLoader != null) {
-                            paramsArray.add(Class.forName(arrayClass,true,targetClassLoader));
-                        }else {
+                        if (targetClassLoader != null) {
+                            paramsArray.add(Class.forName(arrayClass, true, targetClassLoader));
+                        } else {
                             paramsArray.add(Class.forName(arrayClass));
                         }
 
                         index += arrayClass.length() - 1;
-                    }catch (Exception e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                     break;
@@ -605,9 +608,9 @@ public class FastHookManager {
             index++;
         }
 
-        if(!paramsArray.isEmpty()) {
+        if (!paramsArray.isEmpty()) {
             params = new Class[paramsArray.size()];
-            for(int i = 0; i < paramsArray.size(); i++) {
+            for (int i = 0; i < paramsArray.size(); i++) {
                 params[i] = paramsArray.get(i);
             }
         }
@@ -619,7 +622,7 @@ public class FastHookManager {
         String objectClass = null;
 
         String subParam = paramSig.substring(index + 1);
-        objectClass = subParam.split(";")[0].replace('/','.');
+        objectClass = subParam.split(";")[0].replace('/', '.');
 
         return objectClass;
     }
@@ -628,17 +631,17 @@ public class FastHookManager {
         int count = 0;
         StringBuilder arrayClassBuilder = new StringBuilder("");
 
-        while(paramSig.charAt(index) == '[') {
+        while (paramSig.charAt(index) == '[') {
             count++;
             index++;
             arrayClassBuilder.append('[');
         }
 
-        if(paramSig.charAt(index) == 'L') {
+        if (paramSig.charAt(index) == 'L') {
             String subParam = paramSig.substring(index);
-            arrayClassBuilder.append(subParam.split(";")[0].replace('/','.'));
+            arrayClassBuilder.append(subParam.split(";")[0].replace('/', '.'));
             arrayClassBuilder.append(";");
-        }else {
+        } else {
             arrayClassBuilder.append(paramSig.charAt(index));
         }
 
@@ -651,57 +654,57 @@ public class FastHookManager {
         int offset = 0;
         List<Object> args = new ArrayList<Object>();
 
-        if(!isStatic) {
-            param.receiver = getObjectParam(sp,offset);
+        if (!isStatic) {
+            param.receiver = getObjectParam(sp, offset);
             offset += 4;
         }
 
-        if(paramType == null)
+        if (paramType == null)
             return param;
 
-        for(Class type : paramType) {
-            if(type.equals(boolean.class)) {
-                boolean b = getBooleanParam(sp,offset);
+        for (Class type : paramType) {
+            if (type.equals(boolean.class)) {
+                boolean b = getBooleanParam(sp, offset);
                 args.add(new Boolean(b));
                 offset += 4;
-            }else if(type.equals(byte.class)) {
-                byte b2 = getByteParam(sp,offset);
+            } else if (type.equals(byte.class)) {
+                byte b2 = getByteParam(sp, offset);
                 args.add(new Byte(b2));
                 offset += 4;
-            }else if(type.equals(char.class)) {
-                char c = getCharParam(sp,offset);
+            } else if (type.equals(char.class)) {
+                char c = getCharParam(sp, offset);
                 args.add(new Character(c));
                 offset += 4;
-            }else if(type.equals(short.class)) {
-                short s = getShortParam(sp,offset);
+            } else if (type.equals(short.class)) {
+                short s = getShortParam(sp, offset);
                 args.add(new Short(s));
                 offset += 4;
-            }else if(type.equals(int.class)) {
-                int i = getIntParam(sp,offset);
+            } else if (type.equals(int.class)) {
+                int i = getIntParam(sp, offset);
                 args.add(new Integer(i));
                 offset += 4;
-            }else if(type.equals(long.class)) {
-                long l = getLongParam(sp,offset);
+            } else if (type.equals(long.class)) {
+                long l = getLongParam(sp, offset);
                 args.add(new Long(l));
                 offset += 8;
-            }else if(type.equals(float.class)) {
-                float f = getFloatParam(sp,offset);
+            } else if (type.equals(float.class)) {
+                float f = getFloatParam(sp, offset);
                 args.add(new Float(f));
                 offset += 4;
-            }else if(type.equals(double.class)) {
-                double d = getDoubleParam(sp,offset);
+            } else if (type.equals(double.class)) {
+                double d = getDoubleParam(sp, offset);
                 args.add(new Double(d));
                 offset += 8;
-            }else if(type.equals(void.class)) {
+            } else if (type.equals(void.class)) {
 
-            }else {
-                Object obj = getObjectParam(sp,offset);
+            } else {
+                Object obj = getObjectParam(sp, offset);
                 args.add(obj);
                 offset += 4;
             }
         }
 
-        if(!args.isEmpty()) {
+        if (!args.isEmpty()) {
             param.args = args.toArray(new Object[args.size()]);
         }
 
@@ -717,121 +720,121 @@ public class FastHookManager {
         int fpr_double_index = 0;
         List<Object> args = new ArrayList<Object>();
 
-        if(!isStatic) {
-            param.receiver = getObjectParam(r11,gpr_index * 4, TYPE_CORE_REG_ARGS);
+        if (!isStatic) {
+            param.receiver = getObjectParam(r11, gpr_index * 4, TYPE_CORE_REG_ARGS);
             gpr_index += 1;
             offset += 4;
         }
 
-        if(paramType == null)
+        if (paramType == null)
             return param;
 
-        for(Class type : paramType) {
-            if(type.equals(boolean.class)) {
-                if(gpr_index < CORE_REG_ARGS_SIZE) {
-                    boolean b = getBooleanParam(r11,gpr_index * 4,TYPE_CORE_REG_ARGS);
+        for (Class type : paramType) {
+            if (type.equals(boolean.class)) {
+                if (gpr_index < CORE_REG_ARGS_SIZE) {
+                    boolean b = getBooleanParam(r11, gpr_index * 4, TYPE_CORE_REG_ARGS);
                     args.add(new Boolean(b));
                     gpr_index += 1;
-                }else {
-                    boolean b = getBooleanParam(sp,offset,TYPE_SP);
+                } else {
+                    boolean b = getBooleanParam(sp, offset, TYPE_SP);
                     args.add(new Boolean(b));
                 }
                 offset += 4;
-            }else if(type.equals(byte.class)) {
-                if(gpr_index < CORE_REG_ARGS_SIZE) {
-                    byte b2 = getByteParam(r11,gpr_index * 4,TYPE_CORE_REG_ARGS);
+            } else if (type.equals(byte.class)) {
+                if (gpr_index < CORE_REG_ARGS_SIZE) {
+                    byte b2 = getByteParam(r11, gpr_index * 4, TYPE_CORE_REG_ARGS);
                     args.add(new Byte(b2));
                     gpr_index += 1;
-                }else {
-                    byte b2 = getByteParam(sp,offset,TYPE_SP);
+                } else {
+                    byte b2 = getByteParam(sp, offset, TYPE_SP);
                     args.add(new Byte(b2));
                 }
                 offset += 4;
-            }else if(type.equals(char.class)) {
-                if(gpr_index < CORE_REG_ARGS_SIZE) {
-                    char c = getCharParam(r11,gpr_index * 4,TYPE_CORE_REG_ARGS);
+            } else if (type.equals(char.class)) {
+                if (gpr_index < CORE_REG_ARGS_SIZE) {
+                    char c = getCharParam(r11, gpr_index * 4, TYPE_CORE_REG_ARGS);
                     args.add(new Character(c));
                     gpr_index += 1;
-                }else {
-                    char c = getCharParam(sp,offset,TYPE_SP);
+                } else {
+                    char c = getCharParam(sp, offset, TYPE_SP);
                     args.add(new Character(c));
                 }
                 offset += 4;
-            }else if(type.equals(short.class)) {
-                if(gpr_index < CORE_REG_ARGS_SIZE) {
-                    short s = getShortParam(r11,gpr_index * 4,TYPE_CORE_REG_ARGS);
+            } else if (type.equals(short.class)) {
+                if (gpr_index < CORE_REG_ARGS_SIZE) {
+                    short s = getShortParam(r11, gpr_index * 4, TYPE_CORE_REG_ARGS);
                     args.add(new Short(s));
                     gpr_index += 1;
-                }else {
-                    short s = getShortParam(sp,offset,TYPE_SP);
+                } else {
+                    short s = getShortParam(sp, offset, TYPE_SP);
                     args.add(new Short(s));
                 }
                 offset += 4;
-            }else if(type.equals(int.class)) {
-                if(gpr_index < CORE_REG_ARGS_SIZE) {
-                    int i = getIntParam(r11,gpr_index * 4,TYPE_CORE_REG_ARGS);
+            } else if (type.equals(int.class)) {
+                if (gpr_index < CORE_REG_ARGS_SIZE) {
+                    int i = getIntParam(r11, gpr_index * 4, TYPE_CORE_REG_ARGS);
                     args.add(new Integer(i));
                     gpr_index += 1;
-                }else {
-                    int i = getIntParam(sp,offset,TYPE_SP);
+                } else {
+                    int i = getIntParam(sp, offset, TYPE_SP);
                     args.add(new Integer(i));
                 }
                 offset += 4;
-            }else if(type.equals(long.class)) {
-                if(gpr_index < CORE_REG_ARGS_SIZE) {
-                    if(gpr_index == 1) {
+            } else if (type.equals(long.class)) {
+                if (gpr_index < CORE_REG_ARGS_SIZE) {
+                    if (gpr_index == 1) {
                         gpr_index += 1;
                     }
-                    long l = getLongParam(r11,gpr_index * 4,TYPE_CORE_REG_ARGS);
+                    long l = getLongParam(r11, gpr_index * 4, TYPE_CORE_REG_ARGS);
                     args.add(new Long(l));
                     gpr_index += 2;
-                }else {
-                    long l = getLongParam(sp,offset,TYPE_SP);
+                } else {
+                    long l = getLongParam(sp, offset, TYPE_SP);
                     args.add(new Long(l));
                 }
                 offset += 8;
-            }else if(type.equals(float.class)) {
-                if(fpr_index % 2 == 0) {
+            } else if (type.equals(float.class)) {
+                if (fpr_index % 2 == 0) {
                     fpr_index = fpr_double_index > fpr_index ? fpr_double_index : fpr_index;
                 }
-                if(fpr_index < FP_REG_ARGS_SIZE) {
-                    float f = getFloatParam(r11,fpr_index * 4, TYPE_FP_REG_ARGES);
+                if (fpr_index < FP_REG_ARGS_SIZE) {
+                    float f = getFloatParam(r11, fpr_index * 4, TYPE_FP_REG_ARGES);
                     args.add(new Float(f));
                     fpr_index += 1;
-                }else {
-                    float f = getFloatParam(sp,offset,TYPE_SP);
+                } else {
+                    float f = getFloatParam(sp, offset, TYPE_SP);
                     args.add(new Float(f));
                 }
                 offset += 4;
-            }else if(type.equals(double.class)) {
+            } else if (type.equals(double.class)) {
                 int fpr_index_temp = fpr_index % 2 == 0 ? fpr_index : fpr_index + 1;
                 fpr_double_index = fpr_double_index > fpr_index_temp ? fpr_double_index : fpr_index_temp;
 
-                if(fpr_double_index < FP_REG_ARGS_SIZE) {
-                    double d = getDoubleParam(r11,fpr_double_index * 4, TYPE_FP_REG_ARGES);
+                if (fpr_double_index < FP_REG_ARGS_SIZE) {
+                    double d = getDoubleParam(r11, fpr_double_index * 4, TYPE_FP_REG_ARGES);
                     args.add(new Double(d));
                     fpr_double_index += 2;
-                }else {
-                    double d = getDoubleParam(sp,offset,TYPE_SP);
+                } else {
+                    double d = getDoubleParam(sp, offset, TYPE_SP);
                     args.add(new Double(d));
                 }
                 offset += 8;
-            }else if(type.equals(void.class)) {
+            } else if (type.equals(void.class)) {
 
-            }else {
-                if(gpr_index < CORE_REG_ARGS_SIZE) {
-                    Object obj = getObjectParam(r11,gpr_index * 4,TYPE_CORE_REG_ARGS);
+            } else {
+                if (gpr_index < CORE_REG_ARGS_SIZE) {
+                    Object obj = getObjectParam(r11, gpr_index * 4, TYPE_CORE_REG_ARGS);
                     args.add(obj);
                     gpr_index += 1;
-                }else {
-                    Object obj = getObjectParam(sp,offset,TYPE_SP);
+                } else {
+                    Object obj = getObjectParam(sp, offset, TYPE_SP);
                     args.add(obj);
                 }
                 offset += 4;
             }
         }
 
-        if(!args.isEmpty()) {
+        if (!args.isEmpty()) {
             param.args = args.toArray(new Object[args.size()]);
         }
 
@@ -842,33 +845,33 @@ public class FastHookManager {
         Member forwardMethod = null;
 
         try {
-            Method generateProxy = Proxy.class.getDeclaredMethod(GENERATEPROXY,String.class,Class[].class,ClassLoader.class,Method[].class,Class[][].class);
+            Method generateProxy = Proxy.class.getDeclaredMethod(GENERATEPROXY, String.class, Class[].class, ClassLoader.class, Method[].class, Class[][].class);
             generateProxy.setAccessible(true);
 
             boolean needRecover = false;
             Method[] methods = new Method[1];
 
-            if(targetMethod instanceof Constructor) {
+            if (targetMethod instanceof Constructor) {
                 Method fakeMethod = constructorToMethod(targetMethod);
                 methods[0] = fakeMethod;
                 needRecover = true;
-            }else if(targetMethod instanceof Method){
+            } else if (targetMethod instanceof Method) {
                 methods[0] = (Method) targetMethod;
             }
 
-            Class forwardClass = (Class)generateProxy.invoke(null,PROXY_CLASS_NAME + mProxyCount,null,classLoader,methods,null);
-            poseAsObject(forwardClass,getThread());
-            forwardMethod = forwardClass.getDeclaredMethod(methods[0].getName(),paramType);
+            Class forwardClass = (Class) generateProxy.invoke(null, PROXY_CLASS_NAME + mProxyCount, null, classLoader, methods, null);
+            poseAsObject(forwardClass, getThread());
+            forwardMethod = forwardClass.getDeclaredMethod(methods[0].getName(), paramType);
 
-            if(needRecover) {
+            if (needRecover) {
                 methodToConstructor(targetMethod);
                 methodToConstructor(forwardMethod);
-            }else {
+            } else {
                 setDirectMethod(forwardMethod);
             }
 
             mProxyCount++;
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -876,14 +879,14 @@ public class FastHookManager {
     }
 
     private static long getThread() {
-        if(mThread != 0)
+        if (mThread != 0)
             return mThread;
 
         try {
             Field nativePeer = Thread.class.getDeclaredField("nativePeer");
             nativePeer.setAccessible(true);
             mThread = (long) nativePeer.get(Thread.currentThread());
-        }catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -898,23 +901,23 @@ public class FastHookManager {
         HookRecord tailRecord = new HookRecord(TYPE_RECORD_REWRITE_TAIL, 0, 2, newQuickTrampolineList);
 
         doFullRewriteHook(targetMethod, hookMethod, forwardMethod, headRecord, targetRecord, tailRecord);
-        Logd("JumpTrampoline:0x"+Long.toHexString(headRecord.mJumpTrampoline)+" QuickHookTrampoline:0x"+Long.toHexString(targetRecord.mQuickHookTrampoline)+" QuickTargetTrampoline:0x"+Long.toHexString(targetRecord.mQuickTargetTrampoline)+" QuickOriginalTrampoline:0x"+Long.toHexString(tailRecord.mQuickOriginalTrampoline));
+        Logd("JumpTrampoline:0x" + Long.toHexString(headRecord.mJumpTrampoline) + " QuickHookTrampoline:0x" + Long.toHexString(targetRecord.mQuickHookTrampoline) + " QuickTargetTrampoline:0x" + Long.toHexString(targetRecord.mQuickTargetTrampoline) + " QuickOriginalTrampoline:0x" + Long.toHexString(tailRecord.mQuickOriginalTrampoline));
 
         newQuickTrampolineList.add(headRecord);
         newQuickTrampolineList.add(targetRecord);
         newQuickTrampolineList.add(tailRecord);
 
-        mQuickTrampolineMap.put(Long.valueOf(getMethodEntryPoint(targetMethod)),newQuickTrampolineList);
-        mHookMap.put(targetMethod,targetRecord);
+        mQuickTrampolineMap.put(Long.valueOf(getMethodEntryPoint(targetMethod)), newQuickTrampolineList);
+        mHookMap.put(targetMethod, targetRecord);
     }
 
     private static void doReplaceHookInternal(Member targetMethod, Member hookMethod, Member forwardMethod, boolean isNative) {
-        HookRecord targetRecord = new HookRecord(TYPE_RECORD_REPLACE,targetMethod,hookMethod,forwardMethod,0,0);
+        HookRecord targetRecord = new HookRecord(TYPE_RECORD_REPLACE, targetMethod, hookMethod, forwardMethod, 0, 0);
 
-        doReplaceHook(targetMethod,hookMethod,forwardMethod,isNative,targetRecord);
-        Logd("HookTrampoline:0x"+Long.toHexString(targetRecord.mHookTrampoline)+" TargetTrampoline:0x"+Long.toHexString(targetRecord.mTargetTrampoline));
+        doReplaceHook(targetMethod, hookMethod, forwardMethod, isNative, targetRecord);
+        Logd("HookTrampoline:0x" + Long.toHexString(targetRecord.mHookTrampoline) + " TargetTrampoline:0x" + Long.toHexString(targetRecord.mTargetTrampoline));
 
-        mHookMap.put(targetMethod,targetRecord);
+        mHookMap.put(targetMethod, targetRecord);
     }
 
     private static void sendRetryMessage(Member targetMethod, Member hookMethod, Member forwardMethod, Class[] paramType, FastHookCallback callback, int mode, int retryCount) {
@@ -966,9 +969,9 @@ public class FastHookManager {
 
         public HookRecord(int type, long quickTrampoline, int index, ArrayList<HookRecord> quickTrampolineList) {
             this.mType = type;
-            if(type == TYPE_RECORD_REWRITE_HEAD) {
+            if (type == TYPE_RECORD_REWRITE_HEAD) {
                 this.mQuickOriginalTrampoline = quickTrampoline;
-            }else if(type == TYPE_RECORD_REWRITE_TAIL) {
+            } else if (type == TYPE_RECORD_REWRITE_TAIL) {
                 this.mJumpTrampoline = quickTrampoline;
             }
             this.index = index;
@@ -986,15 +989,15 @@ public class FastHookManager {
 
         public String toString() {
             StringBuilder sb = new StringBuilder("");
-            switch(mType) {
+            switch (mType) {
                 case TYPE_RECORD_REWRITE_HEAD:
-                    sb.append("HEAD Jump:"+Long.toHexString(mJumpTrampoline)+" index:"+index);
+                    sb.append("HEAD Jump:" + Long.toHexString(mJumpTrampoline) + " index:" + index);
                     break;
                 case TYPE_RECORD_REWRITE:
-                    sb.append("RECORD target:"+mTargetMethod.getName()+" hook:"+mHookMethod.getName()+" forward:"+mForwardMethod.getName()+" hook trampoline:0x"+Long.toHexString(mQuickHookTrampoline)+" target trampoline:0x"+Long.toHexString(mQuickTargetTrampoline)+" index:"+index);
+                    sb.append("RECORD target:" + mTargetMethod.getName() + " hook:" + mHookMethod.getName() + " forward:" + mForwardMethod.getName() + " hook trampoline:0x" + Long.toHexString(mQuickHookTrampoline) + " target trampoline:0x" + Long.toHexString(mQuickTargetTrampoline) + " index:" + index);
                     break;
                 case TYPE_RECORD_REWRITE_TAIL:
-                    sb.append("TAIL original:"+Long.toHexString(mQuickOriginalTrampoline)+" index:"+index);
+                    sb.append("TAIL original:" + Long.toHexString(mQuickOriginalTrampoline) + " index:" + index);
                     break;
             }
             return sb.toString();
@@ -1007,8 +1010,8 @@ public class FastHookManager {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case MESSAGE_RETRY:
-                    HookMessage hookMessage = (HookMessage)msg.obj;
-                    doHook(hookMessage.mTargetMethod,hookMessage.mHookMethod,hookMessage.mForwardMethod,hookMessage.mParamType,hookMessage.mCallback,hookMessage.mMode,hookMessage.mRetryCount);
+                    HookMessage hookMessage = (HookMessage) msg.obj;
+                    doHook(hookMessage.mTargetMethod, hookMessage.mHookMethod, hookMessage.mForwardMethod, hookMessage.mParamType, hookMessage.mCallback, hookMessage.mMode, hookMessage.mRetryCount);
                     break;
             }
         }
@@ -1037,58 +1040,96 @@ public class FastHookManager {
     private static void throwException(Exception exception) {
         try {
             throw exception;
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     private static void Logd(String message) {
-        if(DEBUG) {
-            Log.d(TAG,message);
+        if (DEBUG) {
+            Log.d(TAG, message);
         }
     }
 
     private static void Loge(String message) {
-        Log.d(TAG,message);
+        Log.d(TAG, message);
     }
 
     public native static void disableHiddenApiCheck();
+
     private native static void init(int version);
+
     private native static boolean is32bit();
+
     private native static Member getReflectedMethod(long artMethod);
+
     private native static Member getReflectedMethod(int artMethod);
+
     private native static boolean getBooleanParam(long sp, int offset);
+
     private native static boolean getBooleanParam(int address, int offset, int type);
+
     private native static byte getByteParam(long address, int offset);
+
     private native static byte getByteParam(int address, int offset, int type);
+
     private native static char getCharParam(long address, int offset);
+
     private native static char getCharParam(int address, int offset, int type);
+
     private native static short getShortParam(long address, int offset);
+
     private native static short getShortParam(int address, int offset, int type);
+
     private native static int getIntParam(long address, int offset);
+
     private native static int getIntParam(int address, int offset, int type);
+
     private native static long getLongParam(long address, int offset);
+
     private native static long getLongParam(int address, int offset, int type);
+
     private native static float getFloatParam(long address, int offset);
+
     private native static float getFloatParam(int address, int offset, int type);
+
     private native static double getDoubleParam(long address, int offset);
+
     private native static double getDoubleParam(int address, int offset, int type);
+
     private native static Object getObjectParam(long address, int offset);
+
     private native static Object getObjectParam(int address, int offset, int type);
+
     private native static void poseAsObject(Class targetClass, long thread);
+
     private native static Method constructorToMethod(Member method);
+
     private native static void methodToConstructor(Member method);
+
     private native static void disableJITInline();
+
     private native static long getMethodEntryPoint(Member method);
+
     private native static boolean compileMethod(Member method);
+
     private native static boolean isCompiled(Member method);
+
     private native static boolean doRewriteHookCheck(Member method);
+
     private native static boolean isNativeMethod(Member method);
+
     private native static boolean isStaticMethod(Member method);
+
     private native static void setNativeMethod(Member method);
+
     private native static void setDirectMethod(Member method);
+
     private native static int checkJitState(Member method);
+
     private native static int doFullRewriteHook(Member targetMethod, Member hookMethod, Member forwardMethod, HookRecord headRecord, HookRecord targetRecord, HookRecord tailRecord);
+
     private native static int doPartRewriteHook(Member targetMethod, Member hookMethod, Member forwardMethod, long quickOriginalTrampoline, long prevQuickHookTrampoline, HookRecord targetRecord);
+
     private native static int doReplaceHook(Member targetMethod, Member hookMethod, Member forwardMethod, boolean isNative, HookRecord targetRecord);
 }

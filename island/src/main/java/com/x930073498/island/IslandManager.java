@@ -20,6 +20,7 @@ import java.util.Map;
 
 /**
  * Created by x930073498 on 2019/6/20.
+ * 请求权限回调和startActivityForResult回调
  */
 public class IslandManager {
 
