@@ -2,15 +2,27 @@ package com.x930073498.adapter;
 
 import androidx.annotation.NonNull;
 
+public interface BaseItem<T> {
+    default TypeProvider<T> getType(Bundle<T> bundle) {
+        int hash = getClass().hashCode();
+        return it -> hash;
+    }
 
-import java.util.List;
+    HolderFactory createHolder(FactoryParams params);
 
-/**
- * Created by x930073498 on 2019/6/19.
- */
-public interface BaseItem extends HolderViewProvider {
-    Object getData();
+    void bind(Bundle<T> bundle);
 
-    void bind(CommonAdapter adapter, CommonHolder holder, int position, Object data, List<BaseItem> source, @NonNull List<Object> payloads);
+    default void onViewRecycled(@NonNull Bundle<T> bundle) {
+    }
+
+    default void onFailedToRecycleView(@NonNull Bundle<T> bundle) {
+    }
+
+    default void onViewAttachedToWindow(@NonNull Bundle<T> bundle) {
+    }
+
+    default void onViewDetachedFromWindow(@NonNull Bundle<T> bundle) {
+    }
+
 
 }
