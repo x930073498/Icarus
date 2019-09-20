@@ -10,8 +10,11 @@ import com.x930073498.adapter.InitialBundle;
 import com.x930073498.adapter.ViewHolder;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
 public class TestBaseItem extends AbstractSelfBaseItem<String> {
+
+    private static final String TAG = "tag";
 
     @Override
     public void bind(SourceBundle<String> bundle) {
@@ -33,6 +36,12 @@ public class TestBaseItem extends AbstractSelfBaseItem<String> {
     @Override
     public void onViewRecycled(@NonNull SourceBundle<String> bundle) {
 
+    }
+
+    @Override
+    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+        Log.e(TAG, "onAttachedToRecyclerView: " );
     }
 
     @Override

@@ -15,7 +15,6 @@ import androidx.annotation.NonNull;
  */
 final class FactoryPlugin {
     private Source source;
-    //用于标记viewType
 
     private ViewType viewType = new ViewType();
 
@@ -23,14 +22,10 @@ final class FactoryPlugin {
         this.source = source;
     }
 
-    class ViewType {
-
+    private class ViewType {
         SparseArray<SparseIntArray> types = new SparseArray<>();
-
         SparseArray<FactoryHolder> holders = new SparseArray<>();
-
         int result;
-
         private AtomicInteger ai = new AtomicInteger();
 
         private FactoryHolder getFactoryHolder(int type) {

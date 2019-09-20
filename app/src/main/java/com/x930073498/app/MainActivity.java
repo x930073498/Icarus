@@ -1,20 +1,18 @@
 package com.x930073498.app;
 
-import android.util.Log;
-
 import com.x930073498.adapter.BaseItem;
-import com.x930073498.adapter.Source;
 import com.x930073498.adapter.Bundle;
+import com.x930073498.adapter.Source;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -37,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private Source source = Source.create().add(Bundle.create(new TestItem(), createList()))
-            .add(Bundle.create(new TestItem(), createList()));
+            .add(Bundle.create(new TestBaseItem(), createList()));
 
 
     @Override
