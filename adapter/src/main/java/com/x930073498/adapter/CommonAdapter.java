@@ -8,7 +8,7 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class CommonAdapter extends RecyclerView.Adapter<ViewHolder> {
+public final class CommonAdapter extends RecyclerView.Adapter<ViewHolder> {
     private Source source;
 
     CommonAdapter() {
@@ -70,7 +70,7 @@ public class CommonAdapter extends RecyclerView.Adapter<ViewHolder> {
 
     @Override
     public int getItemCount() {
-            return source.size();
+        return source.size();
     }
 
     @Override

@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import androidx.annotation.NonNull;
 import androidx.collection.ArrayMap;
 
-class FactoryPlugin {
+final class FactoryPlugin {
     private Source source;
     //用于标记viewType
     private Map<Integer, FactoryHolder> factoryMap = new ArrayMap<>();

@@ -4,7 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
-public class FactoryParams {
+public final class FactoryParams {
 
     private Source source;
     ViewGroup parent;

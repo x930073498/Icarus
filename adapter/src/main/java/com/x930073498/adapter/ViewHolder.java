@@ -6,9 +6,11 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class ViewHolder extends RecyclerView.ViewHolder {
+@SuppressWarnings({"unchecked", "WeakerAccess"})
+public final class ViewHolder extends RecyclerView.ViewHolder {
     Bundle<?> bundle;
     private SparseArray<View> views = new SparseArray<>();
+
     public ViewHolder(@NonNull View itemView) {
         super(itemView);
     }

@@ -3,14 +3,15 @@ package com.x930073498.app;
 import android.util.Log;
 import android.widget.TextView;
 
-import com.x930073498.adapter.AbstractBaseItem;
+import com.x930073498.adapter.AbstractSelfBaseItem;
 import com.x930073498.adapter.Bundle;
 import com.x930073498.adapter.FactoryParams;
+import com.x930073498.adapter.InitialBundle;
 import com.x930073498.adapter.ViewHolder;
 
 import androidx.annotation.NonNull;
 
-public class TestBaseItem extends AbstractBaseItem<String> {
+public class TestBaseItem extends AbstractSelfBaseItem<String> {
 
     @Override
     public void bind(Bundle<String> bundle) {
@@ -41,7 +42,7 @@ public class TestBaseItem extends AbstractBaseItem<String> {
     }
 
     @Override
-    public int type(Bundle<String> bundle) {
+    public int type(InitialBundle<String> bundle) {
         return R.layout.layout_item_test;
     }
 }

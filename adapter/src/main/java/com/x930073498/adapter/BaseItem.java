@@ -1,6 +1,7 @@
 package com.x930073498.adapter;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
 public interface BaseItem<T> {
     default TypeProvider<T> getType(Bundle<T> bundle) {
@@ -22,6 +23,14 @@ public interface BaseItem<T> {
     }
 
     default void onViewDetachedFromWindow(@NonNull Bundle<T> bundle) {
+    }
+
+   default void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
+
+    }
+
+    default void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
+
     }
 
 

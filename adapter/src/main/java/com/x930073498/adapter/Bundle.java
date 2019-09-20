@@ -5,30 +5,13 @@ import android.view.View;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class Bundle<T> extends SourceItem<T> {
+public final class Bundle<T> extends InitialBundle<T> {
 
-    Source source;
-    int position;
     ViewHolder holder;
-    CommonAdapter adapter;
     List<Object> payloads = new ArrayList<>();
-
 
     Bundle(BaseItem<T> item, T data) {
         super(item, data);
-    }
-
-    public Source getSource() {
-        return source;
-    }
-
-    @Override
-    public T getData() {
-        return super.getData();
-    }
-
-    public int getPosition() {
-        return position;
     }
 
     public int getViewType() {
@@ -38,6 +21,11 @@ public final class Bundle<T> extends SourceItem<T> {
             return provider.type(this);
         }
         return 0;
+    }
+
+    @Override
+    public Source getSource() {
+        return super.getSource();
     }
 
     int getTypeHash() {
@@ -56,9 +44,6 @@ public final class Bundle<T> extends SourceItem<T> {
         return holder;
     }
 
-    public CommonAdapter getAdapter() {
-        return adapter;
-    }
 
     public List<Object> getPayloads() {
         return payloads;

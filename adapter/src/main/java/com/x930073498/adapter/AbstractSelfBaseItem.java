@@ -1,6 +1,12 @@
 package com.x930073498.adapter;
 
-public abstract class AbstractBaseItem<T> implements BaseItem<T>, TypeProvider<T>, HolderFactory {
+
+/**
+ * 自身提供创建 type并创建viewHolder
+ *
+ * @param <T>
+ */
+public abstract class AbstractSelfBaseItem<T> implements BaseItem<T>, TypeProvider<T>, HolderFactory {
     @Override
     public final HolderFactory createHolder(FactoryParams params) {
         return this;

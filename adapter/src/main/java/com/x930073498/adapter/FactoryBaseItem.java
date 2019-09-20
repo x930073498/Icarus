@@ -1,8 +1,9 @@
 package com.x930073498.adapter;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
-public class FactoryBaseItem<T> implements BaseItem<T> {
+public final class FactoryBaseItem<T> implements BaseItem<T> {
 
     private BaseItem<T> item;
     private HolderFactory factory;
@@ -45,5 +46,15 @@ public class FactoryBaseItem<T> implements BaseItem<T> {
     @Override
     public void onViewDetachedFromWindow(@NonNull Bundle<T> bundle) {
         item.onViewDetachedFromWindow(bundle);
+    }
+
+    @Override
+    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
+        item.onAttachedToRecyclerView(recyclerView);
+    }
+
+    @Override
+    public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
+        item.onDetachedFromRecyclerView(recyclerView);
     }
 }
