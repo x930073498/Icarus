@@ -3,7 +3,12 @@ package com.x930073498.adapter;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-public final class TypeBaseItem<T> implements BaseItem<T> {
+/**
+ * 代理viewType的解析，提供内置BaseItem,不开放
+ *
+ * @param <T>
+ */
+final class TypeBaseItem<T> implements BaseItem<T> {
     private TypeProvider<T> provider;
     private BaseItem<T> item;
 
@@ -13,7 +18,7 @@ public final class TypeBaseItem<T> implements BaseItem<T> {
     }
 
     @Override
-    public TypeProvider<T> getType(Bundle<T> bundle) {
+    public TypeProvider<T> getType(InitialBundle<T> bundle) {
         return provider;
     }
 
@@ -23,27 +28,27 @@ public final class TypeBaseItem<T> implements BaseItem<T> {
     }
 
     @Override
-    public void bind(Bundle<T> bundle) {
+    public void bind(SourceBundle<T> bundle) {
         item.bind(bundle);
     }
 
     @Override
-    public void onViewRecycled(@NonNull Bundle<T> bundle) {
+    public void onViewRecycled(@NonNull SourceBundle<T> bundle) {
         item.onViewRecycled(bundle);
     }
 
     @Override
-    public void onFailedToRecycleView(@NonNull Bundle<T> bundle) {
+    public void onFailedToRecycleView(@NonNull SourceBundle<T> bundle) {
         item.onFailedToRecycleView(bundle);
     }
 
     @Override
-    public void onViewAttachedToWindow(@NonNull Bundle<T> bundle) {
+    public void onViewAttachedToWindow(@NonNull SourceBundle<T> bundle) {
         item.onViewAttachedToWindow(bundle);
     }
 
     @Override
-    public void onViewDetachedFromWindow(@NonNull Bundle<T> bundle) {
+    public void onViewDetachedFromWindow(@NonNull SourceBundle<T> bundle) {
         item.onViewDetachedFromWindow(bundle);
     }
 

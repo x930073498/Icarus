@@ -41,7 +41,7 @@ final class FactoryPlugin {
             holders.clear();
         }
 
-        private int getViewType(int type, int hash, Bundle<?> bundle) {
+        private int getViewType(int type, int hash, SourceBundle<?> bundle) {
             if (type == 0) return 0;
             SparseIntArray hashAndResult = types.get(type);
             if (hashAndResult == null) {
@@ -68,7 +68,7 @@ final class FactoryPlugin {
 
 
     int getItemViewType(int position) {
-        Bundle bundle = source.getBundle(position);
+        SourceBundle bundle = source.getBundle(position);
         int type = bundle.getViewType();
         int hash = bundle.getTypeHash();
         return viewType.getViewType(type, hash, bundle);

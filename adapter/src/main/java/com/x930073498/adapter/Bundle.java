@@ -1,56 +1,77 @@
 package com.x930073498.adapter;
 
-import android.view.View;
-
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-public final class Bundle<T> extends InitialBundle<T> {
 
-    ViewHolder holder;
-    List<Object> payloads = new ArrayList<>();
 
+/**
+ * 包裹的数据源
+ */
+@SuppressWarnings("unchecked")
+public abstract class Bundle<T> {
     Bundle(BaseItem<T> item, T data) {
-        super(item, data);
+        this.item = item;
+        this.data = data;
     }
 
-    public int getViewType() {
-        if (item == null) return 0;
-        TypeProvider<T> provider = item.getType(this);
-        if (provider != null) {
-            return provider.type(this);
+    private T data;
+    BaseItem<T> item;
+
+    protected T getData() {
+        return data;
+    }
+
+
+
+
+    public static <T> List<Bundle<T>> create(BaseItem<T> item, T... data) {
+        return create(item, Arrays.asList(data));
+    }
+
+    public static <T> List<Bundle<T>> createTypeDelegate(BaseItem<T> item, TypeProvider<T> provider, T... data) {
+        return create(new TypeBaseItem<>(provider, item), data);
+    }
+    public static <T> List<Bundle<T>> createFullDelegate(BaseItem<T> item, TypeProvider<T> provider, HolderFactory factory, T... data) {
+        return create(new FullBaseItem<>(item,factory,provider), data);
+    }
+
+
+    public static <T, R extends TypeProvider<T> & HolderFactory> List<Bundle<T>> createDelegate(BaseItem<T> item, R delegate, T... data) {
+        return create(new FullBaseItem<>(item, delegate, delegate), data);
+    }
+
+    public static <T> List<Bundle<T>> createFactoryDelegate(BaseItem<T> item, HolderFactory factory, T... data) {
+        return create(new FactoryBaseItem<>(item, factory), data);
+    }
+
+    public static <T> List<Bundle<T>> create(BaseItem<T> item, List<T> data) {
+        List<Bundle<T>> result = new ArrayList<>();
+        if (data == null) return result;
+        for (T temp : data
+        ) {
+            result.add(new SourceBundle<>(item, temp));
         }
-        return 0;
+        return result;
     }
 
-    @Override
-    public Source getSource() {
-        return super.getSource();
+    public static <T> List<Bundle<T>> createTypeDelegate(BaseItem<T> item, TypeProvider<T> provider, List<T> data) {
+        BaseItem<T> temp = new TypeBaseItem<>(provider, item);
+        return create(temp, data);
     }
 
-    int getTypeHash() {
-        return item.getClass().hashCode();
+    public static <T> List<Bundle<T>> createFactoryDelegate(BaseItem<T> item, HolderFactory factory, List<T> data) {
+        BaseItem<T> temp = new FactoryBaseItem<>(item, factory);
+        return create(temp, data);
+    }
+    public static <T> List<Bundle<T>> createFullDelegate(BaseItem<T> item, TypeProvider<T> provider, HolderFactory factory, List<T> data) {
+        BaseItem<T> temp = new FullBaseItem<>(item, factory,provider);
+        return create(temp, data);
     }
 
-    int getHash() {
-        return item.hashCode();
-    }
-
-    public HolderFactory getHolderFactory(FactoryParams params) {
-        return item.createHolder(params);
-    }
-
-    public ViewHolder getHolder() {
-        return holder;
-    }
-
-
-    public List<Object> getPayloads() {
-        return payloads;
-    }
-
-
-    public <V extends View> V getView(int id) {
-        return holder.getView(id);
+    public static <T, R extends TypeProvider<T> & HolderFactory> List<Bundle<T>> createDelegate(BaseItem<T> item, R delegate, List<T> data) {
+        BaseItem<T> temp = new FullBaseItem<>(item, delegate, delegate);
+        return create(temp, data);
     }
 }

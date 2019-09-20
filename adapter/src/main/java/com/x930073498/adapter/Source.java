@@ -10,13 +10,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 @SuppressWarnings("ALL")
 public final class Source {
-    private List<Bundle> data = new ArrayList<>();
+    private List<SourceBundle> data = new ArrayList<>();
     private CommonAdapter adapter;
     FactoryPlugin plugin;
     private List<RecyclerCallback> callbacks = new ArrayList<>();
 
     void onViewRecycled(@NonNull ViewHolder holder) {
-        Bundle bundle = holder.bundle;
+        SourceBundle bundle = holder.bundle;
         if (bundle != null) {
             BaseItem item = bundle.item;
             if (item != null) {
@@ -30,7 +30,7 @@ public final class Source {
     }
 
     void onFailedToRecycleView(@NonNull ViewHolder holder) {
-        Bundle bundle = holder.bundle;
+        SourceBundle bundle = holder.bundle;
         if (bundle != null) {
             BaseItem item = bundle.item;
             if (item != null) {
@@ -44,7 +44,7 @@ public final class Source {
     }
 
     void onViewAttachedToWindow(@NonNull ViewHolder holder) {
-        Bundle bundle = holder.bundle;
+        SourceBundle bundle = holder.bundle;
         if (bundle != null) {
             BaseItem item = bundle.item;
             if (item != null) {
@@ -58,7 +58,7 @@ public final class Source {
     }
 
     void onViewDetachedFromWindow(@NonNull ViewHolder holder) {
-        Bundle bundle = holder.bundle;
+        SourceBundle bundle = holder.bundle;
         if (bundle != null) {
             BaseItem item = bundle.item;
             if (item != null) {
@@ -162,14 +162,14 @@ public final class Source {
         this.adapter = adapter;
     }
 
-    Bundle<?> getBundle(int position) {
-        Bundle<?> bundle = data.get(position);
+    SourceBundle<?> getBundle(int position) {
+        SourceBundle<?> bundle = data.get(position);
         bundle.source = this;
         return bundle;
     }
 
     void bind(@NonNull ViewHolder holder, int position, @NonNull List<Object> payloads) {
-        Bundle bundle = getBundle(position);
+        SourceBundle bundle = getBundle(position);
         if (bundle == null) return;
         bundle.position = position;
         bundle.holder = holder;
@@ -182,33 +182,33 @@ public final class Source {
         }
     }
 
-    public Source insert(SourceItem<?>... items) {
+    public Source insert(Bundle<?>... items) {
         return insert(0, items);
     }
 
-    public Source insert(List<? extends SourceItem> items) {
+    public Source insert(List<? extends Bundle> items) {
         return insert(0, items);
     }
 
-    public Source insert(int index, SourceItem<?>... items) {
-        List<Bundle> list = new ArrayList<>();
-        for (SourceItem<?> item : items
+    public Source insert(int index, Bundle<?>... items) {
+        List<SourceBundle> list = new ArrayList<>();
+        for (Bundle<?> item : items
         ) {
-            if (item instanceof Bundle) {
-                list.add((Bundle) item);
+            if (item instanceof SourceBundle) {
+                list.add((SourceBundle) item);
             }
         }
         data.addAll(index, list);
         return this;
     }
 
-    public Source insert(int index, List<? extends SourceItem> items) {
+    public Source insert(int index, List<? extends Bundle> items) {
         if (items == null) return this;
-        List<Bundle> list = new ArrayList<>();
-        for (SourceItem<?> item : items
+        List<SourceBundle> list = new ArrayList<>();
+        for (Bundle<?> item : items
         ) {
-            if (item instanceof Bundle) {
-                list.add((Bundle) item);
+            if (item instanceof SourceBundle) {
+                list.add((SourceBundle) item);
             }
         }
         data.addAll(index, list);
@@ -216,25 +216,25 @@ public final class Source {
     }
 
 
-    public Source add(SourceItem<?>... items) {
+    public Source add(Bundle<?>... items) {
         insert(-1, items);
         return this;
     }
 
-    public Source add(List<? extends SourceItem> items) {
+    public Source add(List<? extends Bundle> items) {
         if (items == null) return this;
-        List<Bundle> list = new ArrayList<>();
-        for (SourceItem<?> item : items
+        List<SourceBundle> list = new ArrayList<>();
+        for (Bundle<?> item : items
         ) {
-            if (item instanceof Bundle) {
-                list.add((Bundle) item);
+            if (item instanceof SourceBundle) {
+                list.add((SourceBundle) item);
             }
         }
         data.addAll(list);
         return this;
     }
 
-    public Source remove(SourceItem<?>... data) {
+    public Source remove(Bundle<?>... data) {
         this.data.removeAll(Arrays.asList(data));
         return this;
     }
@@ -244,13 +244,13 @@ public final class Source {
         return this;
     }
 
-    public Source replace(SourceItem<?>... data) {
+    public Source replace(Bundle<?>... data) {
         clear();
         add(data);
         return this;
     }
 
-    public Source replace(List<? extends SourceItem> items) {
+    public Source replace(List<? extends Bundle> items) {
         clear();
         add(items);
         return this;

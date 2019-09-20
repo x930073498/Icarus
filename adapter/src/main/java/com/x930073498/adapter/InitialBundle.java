@@ -1,6 +1,6 @@
 package com.x930073498.adapter;
 
-public class InitialBundle<T> extends SourceItem<T> {
+public class InitialBundle<T> extends Bundle<T> {
     Source source;
     int position;
     CommonAdapter adapter;

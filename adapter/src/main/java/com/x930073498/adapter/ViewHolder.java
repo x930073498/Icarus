@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 @SuppressWarnings({"unchecked", "WeakerAccess"})
 public final class ViewHolder extends RecyclerView.ViewHolder {
-    Bundle<?> bundle;
+    SourceBundle<?> bundle;
     private SparseArray<View> views = new SparseArray<>();
 
     public ViewHolder(@NonNull View itemView) {

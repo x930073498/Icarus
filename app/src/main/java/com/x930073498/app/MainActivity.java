@@ -1,14 +1,10 @@
 package com.x930073498.app;
 
-import android.os.Bundle;
 import android.util.Log;
 
 import com.x930073498.adapter.BaseItem;
-import com.x930073498.adapter.CommonAdapter;
-import com.x930073498.adapter.HolderFactory;
 import com.x930073498.adapter.Source;
-import com.x930073498.adapter.SourceItem;
-import com.x930073498.adapter.TypeProvider;
+import com.x930073498.adapter.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
@@ -33,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(android.os.Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         recycler = findViewById(R.id.recycler);
@@ -43,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
         source.insert();
         TestBaseItem item = new TestBaseItem();
         source
-                .add(SourceItem.createDelegate(item,  item,"测试",
+                .add(Bundle.createDelegate(item,  item,"测试",
                         "测试1",
                         "测试2",
                         "测试3",

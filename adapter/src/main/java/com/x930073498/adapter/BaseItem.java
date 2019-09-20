@@ -3,29 +3,37 @@ package com.x930073498.adapter;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+/**
+ * 用于创建一个recycler 的item，主要作用：绑定数据
+ *
+ * @param <T>
+ */
 public interface BaseItem<T> {
-    default TypeProvider<T> getType(Bundle<T> bundle) {
-        int hash = getClass().hashCode();
-        return it -> hash;
-    }
+
+    /**
+     * 解析type
+     * @param bundle
+     * @return
+     */
+    TypeProvider<T> getType(InitialBundle<T> bundle);
 
     HolderFactory createHolder(FactoryParams params);
 
-    void bind(Bundle<T> bundle);
+    void bind(SourceBundle<T> bundle);
 
-    default void onViewRecycled(@NonNull Bundle<T> bundle) {
+    default void onViewRecycled(@NonNull SourceBundle<T> bundle) {
     }
 
-    default void onFailedToRecycleView(@NonNull Bundle<T> bundle) {
+    default void onFailedToRecycleView(@NonNull SourceBundle<T> bundle) {
     }
 
-    default void onViewAttachedToWindow(@NonNull Bundle<T> bundle) {
+    default void onViewAttachedToWindow(@NonNull SourceBundle<T> bundle) {
     }
 
-    default void onViewDetachedFromWindow(@NonNull Bundle<T> bundle) {
+    default void onViewDetachedFromWindow(@NonNull SourceBundle<T> bundle) {
     }
 
-   default void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
+    default void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
 
     }
 

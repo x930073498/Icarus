@@ -4,7 +4,7 @@ import android.util.Log;
 import android.widget.TextView;
 
 import com.x930073498.adapter.AbstractSelfBaseItem;
-import com.x930073498.adapter.Bundle;
+import com.x930073498.adapter.SourceBundle;
 import com.x930073498.adapter.FactoryParams;
 import com.x930073498.adapter.InitialBundle;
 import com.x930073498.adapter.ViewHolder;
@@ -14,7 +14,7 @@ import androidx.annotation.NonNull;
 public class TestBaseItem extends AbstractSelfBaseItem<String> {
 
     @Override
-    public void bind(Bundle<String> bundle) {
+    public void bind(SourceBundle<String> bundle) {
         TextView tv = bundle.getView(R.id.tv);
         if (tv != null) {
             tv.setText(bundle.getData());
@@ -22,16 +22,16 @@ public class TestBaseItem extends AbstractSelfBaseItem<String> {
     }
 
     @Override
-    public void onViewAttachedToWindow(@NonNull Bundle<String> bundle) {
+    public void onViewAttachedToWindow(@NonNull SourceBundle<String> bundle) {
 
     }
 
     @Override
-    public void onViewDetachedFromWindow(@NonNull Bundle<String> bundle) {
+    public void onViewDetachedFromWindow(@NonNull SourceBundle<String> bundle) {
     }
 
     @Override
-    public void onViewRecycled(@NonNull Bundle<String> bundle) {
+    public void onViewRecycled(@NonNull SourceBundle<String> bundle) {
 
     }
 
