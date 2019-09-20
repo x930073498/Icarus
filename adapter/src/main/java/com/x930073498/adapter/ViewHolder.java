@@ -6,6 +6,9 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+/**
+ * 内置ViewHolder
+ */
 @SuppressWarnings({"unchecked", "WeakerAccess"})
 public final class ViewHolder extends RecyclerView.ViewHolder {
     SourceBundle<?> bundle;

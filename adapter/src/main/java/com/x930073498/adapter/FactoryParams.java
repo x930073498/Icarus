@@ -4,6 +4,9 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
+/**
+ * 用于创建viewHolder，对外开放
+ */
 public final class FactoryParams {
 
     private Source source;

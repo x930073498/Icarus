@@ -1,5 +1,10 @@
 package com.x930073498.adapter;
 
+/**
+ * 用于解析type
+ *
+ * @param <T>
+ */
 public class InitialBundle<T> extends Bundle<T> {
     Source source;
     int position;

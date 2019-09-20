@@ -8,6 +8,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
+
+/**
+ * 数据源操作类
+ */
 @SuppressWarnings("ALL")
 public final class Source {
     private List<SourceBundle> data = new ArrayList<>();

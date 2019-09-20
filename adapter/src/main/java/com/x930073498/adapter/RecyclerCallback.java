@@ -3,6 +3,9 @@ package com.x930073498.adapter;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+/**
+ * 用于回调
+ */
 public interface RecyclerCallback {
     default void onViewRecycled(@NonNull ViewHolder holder) {
 

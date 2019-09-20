@@ -8,6 +8,9 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+/**
+ * 通用adapter
+ */
 public final class CommonAdapter extends RecyclerView.Adapter<ViewHolder> {
     private Source source;
 

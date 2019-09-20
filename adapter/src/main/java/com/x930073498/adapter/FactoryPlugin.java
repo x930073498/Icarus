@@ -11,6 +11,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import androidx.annotation.NonNull;
 import androidx.collection.ArrayMap;
 
+/**
+ * 内部实现viewType与viewHolder的关联
+ */
 final class FactoryPlugin {
     private Source source;
     //用于标记viewType
