@@ -5,8 +5,10 @@ import android.util.Log;
 
 import com.x930073498.adapter.BaseItem;
 import com.x930073498.adapter.CommonAdapter;
+import com.x930073498.adapter.HolderFactory;
 import com.x930073498.adapter.Source;
 import com.x930073498.adapter.SourceItem;
+import com.x930073498.adapter.TypeProvider;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
@@ -41,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
         source.insert();
         TestBaseItem item = new TestBaseItem();
         source
-                .add(SourceItem.create(item, "测试",
+                .add(SourceItem.createDelegate(item,  item,"测试",
                         "测试1",
                         "测试2",
                         "测试3",
