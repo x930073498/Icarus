@@ -2,7 +2,9 @@ package com.x930073498.adapter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -15,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 @SuppressWarnings("ALL")
 public final class Source {
     private List<SourceBundle> data = new ArrayList<>();
+    private HashSet<BaseItem> items = new HashSet<>();
     private CommonAdapter adapter;
     FactoryPlugin plugin;
     private List<RecyclerCallback> callbacks = new ArrayList<>();
@@ -76,6 +79,12 @@ public final class Source {
     }
 
     void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
+        for (BaseItem item : getItems()
+        ) {
+            if (item != null) {
+                item.onAttachedToRecyclerView(recyclerView);
+            }
+        }
         for (RecyclerCallback callback : callbacks
         ) {
             callback.onAttachedToRecyclerView(recyclerView);
@@ -83,8 +92,13 @@ public final class Source {
     }
 
     void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
-        for (RecyclerCallback callback : callbacks
+        for (BaseItem item : getItems()
         ) {
+            if (item != null) {
+                item.onDetachedFromRecyclerView(recyclerView);
+            }
+        }
+        for (RecyclerCallback callback : callbacks) {
             callback.onDetachedFromRecyclerView(recyclerView);
         }
     }
@@ -93,6 +107,15 @@ public final class Source {
     public final void notifyDataSetChanged() {
         if (adapter == null) return;
         adapter.notifyDataSetChanged();
+    }
+
+    private Set<BaseItem> getItems() {
+        Set<BaseItem> result = new HashSet<>();
+        for (SourceBundle bundle : data
+        ) {
+            result.add(bundle.item);
+        }
+        return result;
     }
 
     public final void notifyItemChanged(int position) {

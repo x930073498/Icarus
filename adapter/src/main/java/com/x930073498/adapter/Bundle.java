@@ -5,11 +5,10 @@ import java.util.Arrays;
 import java.util.List;
 
 
-
 /**
  * 包裹的数据源
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings("ALL")
 public abstract class Bundle<T> {
     Bundle(BaseItem<T> item, T data) {
         this.item = item;
@@ -24,7 +23,24 @@ public abstract class Bundle<T> {
     }
 
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Bundle<?> bundle = (Bundle<?>) o;
+        return equals(data, bundle.data);
+    }
+    private boolean equals(Object a, Object b) {
+        return (a == b) || (a != null && a.equals(b));
+    }
 
+    @Override
+    public int hashCode() {
+        return hash(data);
+    }
+    private int hash(Object... values) {
+        return Arrays.hashCode(values);
+    }
 
     public static <T> List<Bundle<T>> create(BaseItem<T> item, T... data) {
         return create(item, Arrays.asList(data));

@@ -21,6 +21,7 @@ public interface BaseItem<T> {
 
     void bind(SourceBundle<T> bundle);
 
+
     default void onViewRecycled(@NonNull SourceBundle<T> bundle) {
     }
 

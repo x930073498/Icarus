@@ -37,7 +37,6 @@ public class TestBaseItem extends AbstractSelfBaseItem<String> {
 
     @Override
     public ViewHolder create(FactoryParams params) {
-        Log.e("tag", "enter this line ");
         return params.create(params.getViewType());
     }
 

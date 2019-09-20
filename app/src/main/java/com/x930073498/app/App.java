@@ -27,8 +27,6 @@ public class App extends Application {
         FastHookManager.doHook(Activity.class.getName(), null, "onResume", "V", new FastHookCallback() {
             @Override
             public void beforeHookedMethod(FastHookParam param) {
-                Log.e("before","enter this line 1");
-                Log.e("before param",""+param);
             }
 
             @Override

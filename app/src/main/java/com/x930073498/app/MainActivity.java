@@ -12,20 +12,37 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class MainActivity extends AppCompatActivity {
 
     private RecyclerView recycler;
     private String TAG = "MainActivity";
     private MainViewModel viewModel;
-    private Source source = Source.create();
+
+    AtomicInteger ai = new AtomicInteger();
+
+    private String createData() {
+        return "测试" + ai.incrementAndGet();
+    }
+
+    private List<String> createList() {
+        List<String> result = new ArrayList<>();
+        for (int i = 0; i < 50; i++) {
+            result.add(createData());
+        }
+        return result;
+    }
+
+    private Source source = Source.create().add(Bundle.create(new TestItem(), createList()))
+            .add(Bundle.create(new TestItem(), createList()));
 
 
     @Override
     protected void onResume() {
         super.onResume();
-        Log.e("resume", "enter this line 3");
     }
 
     @Override
@@ -35,38 +52,10 @@ public class MainActivity extends AppCompatActivity {
         recycler = findViewById(R.id.recycler);
         recycler.setLayoutManager(new LinearLayoutManager(this));
         viewModel = ViewModelProviders.of(this).get(MainViewModel.class);
+        long time = System.currentTimeMillis();
         source.bind(recycler);
-        source.insert();
-        TestBaseItem item = new TestBaseItem();
-        source
-                .add(Bundle.createDelegate(item,  item,"测试",
-                        "测试1",
-                        "测试2",
-                        "测试3",
-                        "测试4",
-                        "测试5",
-                        "测试6",
-                        "测试7",
-                        "测试8",
-                        "测试9",
-                        "测试10",
-                        "测试11",
-                        "测试12",
-                        "测试13",
-                        "测试14",
-                        "测试15",
-                        "测试16",
-                        "测试17",
-                        "测试18",
-                        "测试19",
-                        "测试20",
-                        "测试21",
-                        "测试22",
-                        "测试23",
-                        "测试24",
-                        "测试25"
-                ))
-                .notifyDataSetChanged();
+        source.notifyDataSetChanged();
+//        Log.e("tag", "time=" + (System.currentTimeMillis() - time));
         getData();
         register();
     }

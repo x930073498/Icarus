@@ -1,15 +1,14 @@
 package com.x930073498.adapter;
 
+import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import androidx.annotation.NonNull;
-import androidx.collection.ArrayMap;
 
 /**
  * 内部实现viewType与viewHolder的关联
@@ -17,7 +16,6 @@ import androidx.collection.ArrayMap;
 final class FactoryPlugin {
     private Source source;
     //用于标记viewType
-    private Map<Integer, FactoryHolder> factoryMap = new ArrayMap<>();
 
     private ViewType viewType = new ViewType();
 
@@ -33,7 +31,7 @@ final class FactoryPlugin {
 
         int result;
 
-        private AtomicInteger ai = new AtomicInteger(1);
+        private AtomicInteger ai = new AtomicInteger();
 
         private FactoryHolder getFactoryHolder(int type) {
             return holders.get(type);
@@ -46,17 +44,17 @@ final class FactoryPlugin {
 
         private int getViewType(int type, int hash, SourceBundle<?> bundle) {
             if (type == 0) return 0;
-            SparseIntArray hashAndResult = types.get(type);
-            if (hashAndResult == null) {
+            SparseIntArray typeAndResult = types.get(hash);
+            if (typeAndResult == null) {
                 result = ai.incrementAndGet();
-                hashAndResult = new SparseIntArray();
-                hashAndResult.put(hash, result);
-                types.put(type, hashAndResult);
+                typeAndResult = new SparseIntArray();
+                typeAndResult.put(type, result);
+                types.put(hash, typeAndResult);
             } else {
-                result = hashAndResult.get(type, 0);
+                result = typeAndResult.get(type, 0);
                 if (result == 0) {
                     result = ai.incrementAndGet();
-                    hashAndResult.put(type, result);
+                    typeAndResult.put(type, result);
                 }
             }
             FactoryHolder holder = holders.get(result);
@@ -72,6 +70,7 @@ final class FactoryPlugin {
 
     int getItemViewType(int position) {
         SourceBundle bundle = source.getBundle(position);
+        bundle.position = position;
         int type = bundle.getViewType();
         int hash = bundle.getTypeHash();
         return viewType.getViewType(type, hash, bundle);
