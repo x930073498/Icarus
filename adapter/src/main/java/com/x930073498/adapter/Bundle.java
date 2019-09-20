@@ -28,7 +28,7 @@ public abstract class Bundle<T> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Bundle<?> bundle = (Bundle<?>) o;
-        return equals(data, bundle.data);
+        return equals(data, bundle.data)&&equals(item,bundle.item);
     }
     private boolean equals(Object a, Object b) {
         return (a == b) || (a != null && a.equals(b));
@@ -36,7 +36,7 @@ public abstract class Bundle<T> {
 
     @Override
     public int hashCode() {
-        return hash(data);
+        return hash(data,item);
     }
     private int hash(Object... values) {
         return Arrays.hashCode(values);

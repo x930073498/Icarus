@@ -3,6 +3,7 @@ package com.x930073498.adapter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -104,9 +105,10 @@ public final class Source {
     }
 
 
-    public final void notifyDataSetChanged() {
-        if (adapter == null) return;
+    public final Source notifyDataSetChanged() {
+        if (adapter == null) return this;
         adapter.notifyDataSetChanged();
+        return this;
     }
 
     private Set<BaseItem> getItems() {
@@ -118,50 +120,59 @@ public final class Source {
         return result;
     }
 
-    public final void notifyItemChanged(int position) {
-        if (adapter == null) return;
+    public final Source notifyItemChanged(int position) {
+        if (adapter == null) return this;
         adapter.notifyItemChanged(position);
+        return this;
     }
 
-    public final void notifyItemChanged(int position, @Nullable Object payload) {
-        if (adapter == null) return;
+    public final Source notifyItemChanged(int position, @Nullable Object payload) {
+        if (adapter == null) return this;
         adapter.notifyItemChanged(position, payload);
+        return this;
     }
 
-    public final void notifyItemRangeChanged(int positionStart, int itemCount) {
-        if (adapter == null) return;
+    public final Source notifyItemRangeChanged(int positionStart, int itemCount) {
+        if (adapter == null) return this;
         adapter.notifyItemRangeChanged(positionStart, itemCount);
+        return this;
     }
 
-    public final void notifyItemRangeChanged(int positionStart, int itemCount,
-                                             @Nullable Object payload) {
-        if (adapter == null) return;
+    public final Source notifyItemRangeChanged(int positionStart, int itemCount,
+                                               @Nullable Object payload) {
+        if (adapter == null) return this;
         adapter.notifyItemRangeChanged(positionStart, itemCount, payload);
+        return this;
     }
 
-    public final void notifyItemInserted(int position) {
-        if (adapter == null) return;
+    public final Source notifyItemInserted(int position) {
+        if (adapter == null) return this;
         adapter.notifyItemInserted(position);
+        return this;
     }
 
-    public final void notifyItemMoved(int fromPosition, int toPosition) {
-        if (adapter == null) return;
+    public final Source notifyItemMoved(int fromPosition, int toPosition) {
+        if (adapter == null) return this;
         adapter.notifyItemMoved(fromPosition, toPosition);
+        return this;
     }
 
-    public final void notifyItemRangeInserted(int positionStart, int itemCount) {
-        if (adapter == null) return;
+    public final Source notifyItemRangeInserted(int positionStart, int itemCount) {
+        if (adapter == null) return this;
         adapter.notifyItemRangeInserted(positionStart, itemCount);
+        return this;
     }
 
-    public final void notifyItemRemoved(int position) {
-        if (adapter == null) return;
+    public final Source notifyItemRemoved(int position) {
+        if (adapter == null) return this;
         adapter.notifyItemRemoved(position);
+        return this;
     }
 
-    public final void notifyItemRangeRemoved(int positionStart, int itemCount) {
-        if (adapter == null) return;
+    public final Source notifyItemRangeRemoved(int positionStart, int itemCount) {
+        if (adapter == null) return this;
         adapter.notifyItemRangeRemoved(positionStart, itemCount);
+        return this;
     }
 
     public CommonAdapter getAdapter() {
@@ -172,9 +183,10 @@ public final class Source {
         callbacks.remove(callback);
     }
 
-    public void addCallback(RecyclerCallback callback) {
-        if (callbacks.contains(callback)) return;
+    public Source addCallback(RecyclerCallback callback) {
+        if (callbacks.contains(callback)) return this;
         callbacks.add(callback);
+        return this;
     }
 
     private Source() {
@@ -189,10 +201,33 @@ public final class Source {
         this.adapter = adapter;
     }
 
-    SourceBundle<?> getBundle(int position) {
+    public SourceBundle<?> getBundle(int position) {
         SourceBundle<?> bundle = data.get(position);
         bundle.source = this;
         return bundle;
+    }
+
+    public SourceBundle<?> getBundle(Object source) {
+        for (SourceBundle bundle : data
+        ) {
+            if (equals(source, bundle.getData())) return bundle;
+        }
+        return null;
+    }
+
+    public int getBundlePosition(SourceBundle bundle) {
+        return data.indexOf(bundle);
+    }
+
+    public int getBundlePositionWithSource(Object source) {
+        SourceBundle bundle;
+        for (int i = 0; i < data.size(); i++) {
+            bundle = data.get(i);
+            if (bundle == null) continue;
+            if (equals(source, bundle.getData())) return i;
+
+        }
+        return -1;
     }
 
     void bind(@NonNull ViewHolder holder, int position, @NonNull List<Object> payloads) {
@@ -226,6 +261,120 @@ public final class Source {
             }
         }
         data.addAll(index, list);
+        return this;
+    }
+
+    public Source move(int start, int to, int count) {
+        if (start == to || start < 0 || start + count >= data.size() || to < 0 || to + count >= data.size())
+            return this;
+        List<SourceBundle> list = new ArrayList<>(data.subList(start, start + count));
+        removeRange(start, count);
+        return insert(to, list);
+    }
+
+    public Source move(int start, int to) {
+        return move(start, to, 1);
+    }
+
+    public Source move(SourceBundle<?> from, SourceBundle<?> to) {
+        if (from == null || to == null) return this;
+        int fromIndex = data.indexOf(from);
+        int toIndex = data.indexOf(to);
+        if (fromIndex < 0 || toIndex < 0) return this;
+        return move(fromIndex, toIndex);
+    }
+
+    boolean equals(Object a, Object b) {
+        return a == b || (a != null && a.equals(b));
+    }
+
+    public Source moveSource(Object from, Object to) {
+        if (from == null || to == null) return this;
+        if (equals(from, to)) return this;
+        int fromIndex = -1, toIndex = -1;
+        SourceBundle bundle;
+        for (int i = 0; i < data.size(); i++) {
+            bundle = getBundle(i);
+            if (bundle == null) continue;
+            if (equals(from, bundle.getData())) {
+                fromIndex = i;
+            } else if (equals(to, bundle.getData())) {
+                toIndex = i;
+            }
+            if (fromIndex != -1 && toIndex != -1) break;
+        }
+        if (fromIndex == -1 || toIndex == -1) return this;
+        return move(fromIndex, toIndex);
+    }
+
+
+    public Source swap(int from, int to, int count) {
+        if (data.isEmpty()) return this;
+        if (from < 0 || to < 0) return this;
+        if (from + count > data.size() || to + count > data.size()) return this;
+        if (from > to && to + count > from) return this;
+        if (from < to && from + count > to) return this;
+        SourceBundle first, second;
+        int firstIndex, secondIndex;
+        for (int i = 0; i < count; i++) {
+            firstIndex = i + from;
+            secondIndex = i + to;
+            first = getBundle(firstIndex);
+            second = getBundle(secondIndex);
+            data.set(firstIndex, second);
+            data.set(secondIndex, first);
+        }
+        return this;
+    }
+
+    public Source swap(int from, int to) {
+        return swap(from, to, 1);
+    }
+
+    public Source swap(SourceBundle<?> from, SourceBundle<?> to) {
+        if (data.isEmpty()) return this;
+        int first = data.indexOf(from);
+        int second = data.indexOf(to);
+        if (first < 0 || second < 0) return this;
+        data.set(second, from);
+        data.set(first, to);
+        return this;
+    }
+
+    public Source swapSource(Object from, Object to) {
+        if (data.isEmpty()) return this;
+        if (from == null || to == null) return this;
+        int first = -1, second = -1;
+        SourceBundle fromBundle = null, toBundle = null, tempBundle;
+        for (int i = 0; i < data.size(); i++) {
+            tempBundle = data.get(i);
+            if (tempBundle == null) continue;
+            if (equals(from, tempBundle.getData())) {
+                fromBundle = tempBundle;
+                first = i;
+            } else if (equals(to, tempBundle.getData())) {
+                toBundle = tempBundle;
+                second = i;
+            }
+            if (first != -1 && second != -1) break;
+        }
+        if (first == -1 || second == -1) return this;
+        data.set(first, toBundle);
+        data.set(second, fromBundle);
+        return this;
+    }
+
+
+    public Source removeRange(int start, int count) {
+        if (start < 0 || start >= data.size() || count <= 0) return this;
+        List<Integer> indexes = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            indexes.add(start + i);
+        }
+        return removeAt(indexes);
+    }
+
+    public Source moveSource(int to, Object data) {
         return this;
     }
 
@@ -266,8 +415,54 @@ public final class Source {
         return this;
     }
 
+    public Source remove(List<Bundle> data) {
+        this.data.removeAll(data);
+        return this;
+    }
+
+    public Source removeSource(Object... data) {
+        return removeSource(Arrays.asList(data));
+    }
+
+    public Source removeSource(List<?> data) {
+        if (data.isEmpty()) return this;
+        Iterator<SourceBundle> iter = this.data.iterator();
+        Bundle bundle;
+        while (iter.hasNext()) {
+            bundle = iter.next();
+            if (bundle != null && data.contains(bundle.getData())) {
+                iter.remove();
+            }
+        }
+        return this;
+    }
+
     public Source clear() {
         this.data.clear();
+        return this;
+    }
+
+    public Source removeAt(int... indexes) {
+        List<Bundle> list = new ArrayList<>();
+        Bundle bundle;
+        for (int index : indexes
+        ) {
+            if (index < 0 || index >= data.size()) continue;
+            list.add(data.get(index));
+        }
+        remove(list);
+        return this;
+    }
+
+    public Source removeAt(List<Integer> indexes) {
+        List<Bundle> list = new ArrayList<>();
+        Bundle bundle;
+        for (int index : indexes
+        ) {
+            if (index < 0 || index >= data.size()) continue;
+            list.add(data.get(index));
+        }
+        remove(list);
         return this;
     }
 
@@ -289,7 +484,7 @@ public final class Source {
     }
 
 
-    public void bind(RecyclerView recyclerView) {
+    public Source bind(RecyclerView recyclerView) {
         RecyclerView.Adapter adapter = recyclerView.getAdapter();
         if (adapter instanceof CommonAdapter) {
             ((CommonAdapter) adapter).bind(recyclerView, this);
@@ -297,6 +492,7 @@ public final class Source {
             adapter = new CommonAdapter();
             ((CommonAdapter) adapter).bind(recyclerView, this);
         }
+        return this;
     }
 
 }

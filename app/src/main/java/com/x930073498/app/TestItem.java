@@ -1,6 +1,5 @@
 package com.x930073498.app;
 
-import android.util.Log;
 import android.widget.TextView;
 
 import com.x930073498.adapter.AbstractSelfBaseItem;
@@ -26,7 +25,6 @@ public class TestItem extends AbstractSelfBaseItem<String> {
 
     @Override
     public ViewHolder create(FactoryParams params) {
-        Log.e("tag", "enter this line 1");
         return params.create(params.getViewType());
     }
 
@@ -42,7 +40,6 @@ public class TestItem extends AbstractSelfBaseItem<String> {
     @Override
     public void onViewRecycled(@NonNull SourceBundle<String> bundle) {
         super.onViewRecycled(bundle);
-        Log.e(TAG, "onViewRecycled: " );
     }
 
     @Override
@@ -53,24 +50,20 @@ public class TestItem extends AbstractSelfBaseItem<String> {
     @Override
     public void onViewAttachedToWindow(@NonNull SourceBundle<String> bundle) {
         super.onViewAttachedToWindow(bundle);
-        Log.e(TAG, "onViewAttachedToWindow: " );
     }
 
     @Override
     public void onViewDetachedFromWindow(@NonNull SourceBundle<String> bundle) {
         super.onViewDetachedFromWindow(bundle);
-        Log.e(TAG, "onViewDetachedFromWindow: " );
     }
 
     @Override
     public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
-        Log.e(TAG, "onAttachedToRecyclerView: " );
     }
 
     @Override
     public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
         super.onDetachedFromRecyclerView(recyclerView);
-        Log.e(TAG, "onDetachedFromRecyclerView: " );
     }
 }
