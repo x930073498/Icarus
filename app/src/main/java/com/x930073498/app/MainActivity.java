@@ -2,19 +2,19 @@ package com.x930073498.app;
 
 import android.util.Log;
 
-import com.x930073498.adapter.BaseItem;
+import com.alibaba.android.vlayout.layout.GridLayoutHelper;
+import com.alibaba.android.vlayout.layout.LinearLayoutHelper;
+import com.alibaba.android.vlayout.layout.OnePlusNLayoutHelperEx;
+import com.alibaba.android.vlayout.layout.ScrollFixLayoutHelper;
 import com.x930073498.adapter.Bundle;
-import com.x930073498.adapter.RecyclerCallback;
+import com.x930073498.adapter.SourceManager;
 import com.x930073498.adapter.Source;
-import com.x930073498.adapter.ViewHolder;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -30,16 +30,21 @@ public class MainActivity extends AppCompatActivity {
         return "测试" + ai.incrementAndGet();
     }
 
-    private List<String> createList() {
+    private List<String> createList(int size) {
         List<String> result = new ArrayList<>();
-        for (int i = 0; i < 5000; i++) {
+        for (int i = 0; i < size; i++) {
             result.add(createData());
         }
         return result;
     }
 
-    private Source source = Source.create().add(Bundle.create(new TestItem(), createList()))
-            .add(Bundle.create(new TestBaseItem(), createList()));
+    private Source<LinearLayoutHelper> source1;
+
+
+    private Source<ScrollFixLayoutHelper> source2;
+    private Source<GridLayoutHelper> source3;
+
+    private Source<OnePlusNLayoutHelperEx> source4;
 
 
     @Override
@@ -50,21 +55,52 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(android.os.Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        initSource();
         setContentView(R.layout.activity_main);
         RecyclerView recycler = findViewById(R.id.recycler);
         recycler.setLayoutManager(new LinearLayoutManager(this));
         viewModel = ViewModelProviders.of(this).get(MainViewModel.class);
         long time = System.currentTimeMillis();
-        source.bind(recycler);
-        Log.e("tag", "time=" + (System.currentTimeMillis() - time));
+        Log.e(TAG, "time=" + (System.currentTimeMillis() - time));
+        SourceManager.create(this)
+//                .addSource(
+//                        source4,
+//                        source3,
+//                        source2,
+//                        source1,
+//                        null
+//                )
+                .addSource(
+                        null,
+                        source1,
+                        source2,
+                        source3,
+                        source4
+                )
+                .bind(recycler);
         getData();
         register();
-        recycler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                source.moveSource("测试1","测试6").notifyItemRangeChanged(0, 10);
-            }
-        }, 3000);
+//        recycler.postDelayed(() -> source1.clear().notifyDataSetChanged(), 3000);
+    }
+
+
+    private void initSource() {
+        source1 = Source.create(new LinearLayoutHelper())
+                .add(Bundle.create(new TestItemLinker(), createList(100)));
+        source1.getLayoutHelper().setDividerHeight(10);
+        source2 = Source.create(new ScrollFixLayoutHelper(0, 0)).add(Bundle.create(new TestItemLinker(), createList(1)));
+        source2.getLayoutHelper().setShowType(ScrollFixLayoutHelper.SHOW_ON_LEAVE);
+        source3 = Source.create(new GridLayoutHelper(5))
+                .add(Bundle.create(new TestItemLinker(), createList(100)));
+        source3.getLayoutHelper().setMargin(0, 10, 0, 10);
+        source3.getLayoutHelper().setGap(5);
+        source4 = Source.create(new OnePlusNLayoutHelperEx()).add(Bundle.create(new TestPlusItemLinker(), createList(6)));
+        source4.getLayoutHelper().setMargin(10, 10, 10, 10);
+        source4.getLayoutHelper().setPadding(10, 10, 10, 10);
+//        onePlusNLayoutHelper.setHasFooter(true);
+//        onePlusNLayoutHelper.setHasHeader(true);
+        source4.getLayoutHelper().setAspectRatio(2.5f);
+        source4.getLayoutHelper().setRowWeight(50);
     }
 
     private void getData() {
@@ -72,10 +108,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void register() {
-        viewModel.result.observe(this, new Observer<List<BaseItem>>() {
-            @Override
-            public void onChanged(List<BaseItem> items) {
-            }
+        viewModel.result.observe(this, items -> {
         });
     }
 

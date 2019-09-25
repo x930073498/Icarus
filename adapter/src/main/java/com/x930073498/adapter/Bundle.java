@@ -10,13 +10,13 @@ import java.util.List;
  */
 @SuppressWarnings("ALL")
 public abstract class Bundle<T> {
-    Bundle(BaseItem<T> item, T data) {
+    Bundle(ItemLinker<T> item, T data) {
         this.item = item;
         this.data = data;
     }
 
     private T data;
-    BaseItem<T> item;
+    ItemLinker<T> item;
 
     protected T getData() {
         return data;
@@ -42,27 +42,27 @@ public abstract class Bundle<T> {
         return Arrays.hashCode(values);
     }
 
-    public static <T> List<Bundle<T>> create(BaseItem<T> item, T... data) {
+    public static <T> List<Bundle<T>> create(ItemLinker<T> item, T... data) {
         return create(item, Arrays.asList(data));
     }
 
-    public static <T> List<Bundle<T>> createTypeDelegate(BaseItem<T> item, TypeProvider<T> provider, T... data) {
-        return create(new TypeBaseItem<>(provider, item), data);
+    public static <T> List<Bundle<T>> createTypeDelegate(ItemLinker<T> item, TypeProvider<T> provider, T... data) {
+        return create(new TypeItemLinker<>(provider, item), data);
     }
-    public static <T> List<Bundle<T>> createFullDelegate(BaseItem<T> item, TypeProvider<T> provider, HolderFactory factory, T... data) {
-        return create(new FullBaseItem<>(item,factory,provider), data);
-    }
-
-
-    public static <T, R extends TypeProvider<T> & HolderFactory> List<Bundle<T>> createDelegate(BaseItem<T> item, R delegate, T... data) {
-        return create(new FullBaseItem<>(item, delegate, delegate), data);
+    public static <T> List<Bundle<T>> createFullDelegate(ItemLinker<T> item, TypeProvider<T> provider, HolderFactory factory, T... data) {
+        return create(new FullItemLinker<>(item,factory,provider), data);
     }
 
-    public static <T> List<Bundle<T>> createFactoryDelegate(BaseItem<T> item, HolderFactory factory, T... data) {
-        return create(new FactoryBaseItem<>(item, factory), data);
+
+    public static <T, R extends TypeProvider<T> & HolderFactory> List<Bundle<T>> createDelegate(ItemLinker<T> item, R delegate, T... data) {
+        return create(new FullItemLinker<>(item, delegate, delegate), data);
     }
 
-    public static <T> List<Bundle<T>> create(BaseItem<T> item, List<T> data) {
+    public static <T> List<Bundle<T>> createFactoryDelegate(ItemLinker<T> item, HolderFactory factory, T... data) {
+        return create(new FactoryItemLinker<>(item, factory), data);
+    }
+
+    public static <T> List<Bundle<T>> create(ItemLinker<T> item, List<T> data) {
         List<Bundle<T>> result = new ArrayList<>();
         if (data == null) return result;
         for (T temp : data
@@ -72,22 +72,22 @@ public abstract class Bundle<T> {
         return result;
     }
 
-    public static <T> List<Bundle<T>> createTypeDelegate(BaseItem<T> item, TypeProvider<T> provider, List<T> data) {
-        BaseItem<T> temp = new TypeBaseItem<>(provider, item);
+    public static <T> List<Bundle<T>> createTypeDelegate(ItemLinker<T> item, TypeProvider<T> provider, List<T> data) {
+        ItemLinker<T> temp = new TypeItemLinker<>(provider, item);
         return create(temp, data);
     }
 
-    public static <T> List<Bundle<T>> createFactoryDelegate(BaseItem<T> item, HolderFactory factory, List<T> data) {
-        BaseItem<T> temp = new FactoryBaseItem<>(item, factory);
+    public static <T> List<Bundle<T>> createFactoryDelegate(ItemLinker<T> item, HolderFactory factory, List<T> data) {
+        ItemLinker<T> temp = new FactoryItemLinker<>(item, factory);
         return create(temp, data);
     }
-    public static <T> List<Bundle<T>> createFullDelegate(BaseItem<T> item, TypeProvider<T> provider, HolderFactory factory, List<T> data) {
-        BaseItem<T> temp = new FullBaseItem<>(item, factory,provider);
+    public static <T> List<Bundle<T>> createFullDelegate(ItemLinker<T> item, TypeProvider<T> provider, HolderFactory factory, List<T> data) {
+        ItemLinker<T> temp = new FullItemLinker<>(item, factory,provider);
         return create(temp, data);
     }
 
-    public static <T, R extends TypeProvider<T> & HolderFactory> List<Bundle<T>> createDelegate(BaseItem<T> item, R delegate, List<T> data) {
-        BaseItem<T> temp = new FullBaseItem<>(item, delegate, delegate);
+    public static <T, R extends TypeProvider<T> & HolderFactory> List<Bundle<T>> createDelegate(ItemLinker<T> item, R delegate, List<T> data) {
+        ItemLinker<T> temp = new FullItemLinker<>(item, delegate, delegate);
         return create(temp, data);
     }
 }

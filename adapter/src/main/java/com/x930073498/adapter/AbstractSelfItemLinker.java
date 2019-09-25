@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView;
  *
  * @param <T>
  */
-public abstract class AbstractSelfBaseItem<T> implements BaseItem<T>, TypeProvider<T>, HolderFactory {
+public abstract class AbstractSelfItemLinker<T> implements ItemLinker<T>, TypeProvider<T>, HolderFactory {
     @Override
     public final HolderFactory createHolder(FactoryParams params) {
         return this;

@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView;
  *
  * @param <T>
  */
-public interface BaseItem<T> {
+public interface ItemLinker<T> {
 
     /**
      * 解析type

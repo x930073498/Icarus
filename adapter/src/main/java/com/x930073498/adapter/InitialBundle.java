@@ -8,9 +8,9 @@ package com.x930073498.adapter;
 public class InitialBundle<T> extends Bundle<T> {
     Source source;
     int position;
-    CommonAdapter adapter;
+    StyleAdapter adapter;
 
-    InitialBundle(BaseItem<T> item, T data) {
+    InitialBundle(ItemLinker<T> item, T data) {
         super(item, data);
     }
 
@@ -22,7 +22,7 @@ public class InitialBundle<T> extends Bundle<T> {
         return position;
     }
 
-    public CommonAdapter getAdapter() {
+    public StyleAdapter getAdapter() {
         return adapter;
     }
 

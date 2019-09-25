@@ -4,27 +4,28 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 /**
- * 代理viewType的解析，提供内置BaseItem,不开放
+ * 用于代理ViewHolder初始化器，不开放
  *
  * @param <T>
  */
-final class TypeBaseItem<T> implements BaseItem<T> {
-    private TypeProvider<T> provider;
-    private BaseItem<T> item;
+final class FactoryItemLinker<T> implements ItemLinker<T> {
 
-    TypeBaseItem(TypeProvider<T> provider, BaseItem<T> item) {
+    private ItemLinker<T> item;
+    private HolderFactory factory;
+
+    FactoryItemLinker(ItemLinker<T> item, HolderFactory factory) {
+        this.factory = factory;
         this.item = item;
-        this.provider = provider;
     }
 
     @Override
     public TypeProvider<T> getType(InitialBundle<T> bundle) {
-        return provider;
+        return item.getType(bundle);
     }
 
     @Override
     public HolderFactory createHolder(FactoryParams params) {
-        return item.createHolder(params);
+        return factory;
     }
 
     @Override

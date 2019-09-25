@@ -1,11 +1,10 @@
 package com.x930073498.app;
 
-import com.x930073498.adapter.BaseItem;
+import com.x930073498.adapter.ItemLinker;
 
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -14,7 +13,7 @@ import java.util.Random;
  */
 public class MainViewModel extends ViewModel {
 
-    final MutableLiveData<List<BaseItem>> result = new MutableLiveData<>();
+    final MutableLiveData<List<ItemLinker>> result = new MutableLiveData<>();
 
 
     private final int childMaxItemCount = 4;

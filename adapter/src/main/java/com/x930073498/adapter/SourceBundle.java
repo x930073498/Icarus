@@ -16,7 +16,7 @@ public final class SourceBundle<T> extends InitialBundle<T> {
     ViewHolder holder;
     List<Object> payloads = new ArrayList<>();
 
-    SourceBundle(BaseItem<T> item, T data) {
+    SourceBundle(ItemLinker<T> item, T data) {
         super(item, data);
     }
 

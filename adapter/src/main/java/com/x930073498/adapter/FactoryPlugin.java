@@ -1,6 +1,5 @@
 package com.x930073498.adapter;
 
-import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
 import android.view.LayoutInflater;
@@ -77,7 +76,6 @@ final class FactoryPlugin {
             this.params = params;
             this.type = type;
         }
-
         int type;
         FactoryParams params;
         HolderFactory factory;
