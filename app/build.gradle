@@ -52,11 +52,11 @@ dependencies {
     debugImplementation project(':requestX')
     debugImplementation project(':hook')
     debugImplementation project(':thread')
-    releaseImplementation "com.x930073498.icarus:${ADAPTER_ARTIFACT_ID}:${VERSION_NAME}"
-    releaseImplementation "com.x930073498.icarus:${ISLAND_ARTIFACT_ID}:${VERSION_NAME}"
-    releaseImplementation "com.x930073498.icarus:${ISLANDX_ARTIFACT_ID}:${VERSION_NAME}"
-    releaseImplementation "com.x930073498.icarus:${BOAT_ARTIFACT_ID}:${VERSION_NAME}"
-    releaseImplementation "com.x930073498.icarus:${OAR_ARTIFACT_ID}:${VERSION_NAME}"
-    releaseImplementation "com.x930073498.icarus:${WIND_ARTIFACT_ID}:${VERSION_NAME}"
+    releaseImplementation "com.x930073498.icarus:${RECYCLER_ARTIFACT_ID}:${VERSION_NAME}"
+    releaseImplementation "com.x930073498.icarus:${REQUEST_ARTIFACT_ID}:${VERSION_NAME}"
+    releaseImplementation "com.x930073498.icarus:${REQUESTX_ARTIFACT_ID}:${VERSION_NAME}"
+    releaseImplementation "com.x930073498.icarus:${CONTEXT_ARTIFACT_ID}:${VERSION_NAME}"
+    releaseImplementation "com.x930073498.icarus:${HOOK_ARTIFACT_ID}:${VERSION_NAME}"
+    releaseImplementation "com.x930073498.icarus:${THREAD_ARTIFACT_ID}:${VERSION_NAME}"
     implementation 'com.squareup.leakcanary:leakcanary-android:1.6.3'
 }

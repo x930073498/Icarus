@@ -41,7 +41,7 @@ uploadArchives {
 
         // 项目名称
 
-        pom.artifactId = WIND_ARTIFACT_ID
+        pom.artifactId = THREAD_ARTIFACT_ID
 
         // 版本号
 
@@ -52,5 +52,23 @@ uploadArchives {
 }
 
 
+uploadArchives.dependsOn 'assembleRelease'
+
+apply plugin: 'com.novoda.bintray-release'
+tasks.withType(Javadoc) {
+    options.encoding = "UTF-8"
+}
+publish{
+    userOrg='x930073498'
+    groupId=GROUP_ID
+    repoName='Icarus'
+    artifactId=THREAD_ARTIFACT_ID
+    publishVersion=VERSION_NAME
+    desc='this is a lib about thread'
+    bintrayUser='x930073498'
+    bintrayKey='a99363a3248cc44442c04672024fbfa9fdd70104'
+    licences = ['Apache-2.0']
+    dryRun=false
+}
 uploadArchives.dependsOn 'assembleRelease'
 

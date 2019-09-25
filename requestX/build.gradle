@@ -32,8 +32,8 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     debugImplementation project(':request')
     debugImplementation project(':context')
-    releaseImplementation "com.x930073498.icarus:${ISLAND_ARTIFACT_ID}:${VERSION_NAME}"
-    releaseImplementation "com.x930073498.icarus:${BOAT_ARTIFACT_ID}:${VERSION_NAME}"
+    releaseImplementation "com.x930073498.icarus:${REQUEST_ARTIFACT_ID}:${VERSION_NAME}"
+    releaseImplementation "com.x930073498.icarus:${CONTEXT_ARTIFACT_ID}:${VERSION_NAME}"
 }
 
 
@@ -51,7 +51,7 @@ uploadArchives {
 
         // 项目名称
 
-        pom.artifactId = ISLANDX_ARTIFACT_ID
+        pom.artifactId = REQUESTX_ARTIFACT_ID
 
         // 版本号
 
@@ -62,4 +62,22 @@ uploadArchives {
 }
 
 
+uploadArchives.dependsOn 'assembleRelease'
+
+apply plugin: 'com.novoda.bintray-release'
+tasks.withType(Javadoc) {
+    options.encoding = "UTF-8"
+}
+publish{
+    userOrg='x930073498'
+    groupId=GROUP_ID
+    repoName='Icarus'
+    artifactId=REQUESTX_ARTIFACT_ID
+    publishVersion=VERSION_NAME
+    desc='this is a lib about permission request and onActivityResult request '
+    bintrayUser='x930073498'
+    bintrayKey='a99363a3248cc44442c04672024fbfa9fdd70104'
+    licences = ['Apache-2.0']
+    dryRun=false
+}
 uploadArchives.dependsOn 'assembleRelease'
