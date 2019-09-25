@@ -30,8 +30,8 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
-    debugImplementation project(':request')
-    debugImplementation project(':context')
+    debugImplementation project(":${REQUEST_ARTIFACT_ID}")
+    debugImplementation project(":${CONTEXT_ARTIFACT_ID}")
     releaseImplementation "com.x930073498.icarus:${REQUEST_ARTIFACT_ID}:${VERSION_NAME}"
     releaseImplementation "com.x930073498.icarus:${CONTEXT_ARTIFACT_ID}:${VERSION_NAME}"
 }
@@ -79,5 +79,6 @@ publish{
     bintrayKey='a99363a3248cc44442c04672024fbfa9fdd70104'
     licences = ['Apache-2.0']
     dryRun=false
+    website='https://github.com/x930073498/Icarus'
 }
 uploadArchives.dependsOn 'assembleRelease'

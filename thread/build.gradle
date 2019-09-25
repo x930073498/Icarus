@@ -69,6 +69,7 @@ publish{
     bintrayKey='a99363a3248cc44442c04672024fbfa9fdd70104'
     licences = ['Apache-2.0']
     dryRun=false
+    website='https://github.com/x930073498/Icarus'
 }
 uploadArchives.dependsOn 'assembleRelease'
 
