@@ -6,9 +6,9 @@ import com.alibaba.android.vlayout.layout.GridLayoutHelper;
 import com.alibaba.android.vlayout.layout.LinearLayoutHelper;
 import com.alibaba.android.vlayout.layout.OnePlusNLayoutHelperEx;
 import com.alibaba.android.vlayout.layout.ScrollFixLayoutHelper;
-import com.x930073498.adapter.Bundle;
-import com.x930073498.adapter.SourceManager;
-import com.x930073498.adapter.Source;
+import com.x930073498.recycler.Bundle;
+import com.x930073498.recycler.SourceManager;
+import com.x930073498.recycler.Source;
 
 import java.util.ArrayList;
 import java.util.List;

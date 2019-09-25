@@ -1,6 +1,6 @@
 package com.x930073498.app;
 
-import com.x930073498.adapter.ItemLinker;
+import com.x930073498.recycler.ItemLinker;
 
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;

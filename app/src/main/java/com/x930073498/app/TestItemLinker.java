@@ -3,11 +3,11 @@ package com.x930073498.app;
 import android.util.Log;
 import android.widget.TextView;
 
-import com.x930073498.adapter.AbstractSelfItemLinker;
-import com.x930073498.adapter.SourceBundle;
-import com.x930073498.adapter.FactoryParams;
-import com.x930073498.adapter.InitialBundle;
-import com.x930073498.adapter.ViewHolder;
+import com.x930073498.recycler.AbstractSelfItemLinker;
+import com.x930073498.recycler.SourceBundle;
+import com.x930073498.recycler.FactoryParams;
+import com.x930073498.recycler.InitialBundle;
+import com.x930073498.recycler.ViewHolder;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;

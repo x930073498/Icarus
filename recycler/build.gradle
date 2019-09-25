@@ -1,0 +1,81 @@
+apply plugin: 'com.android.library'
+apply plugin: 'maven'
+apply plugin: 'com.novoda.bintray-release'
+android {
+    compileSdkVersion 28
+
+
+    defaultConfig {
+        minSdkVersion 15
+        targetSdkVersion 28
+        versionCode VERSION_CODE as int
+        versionName VERSION_NAME
+
+
+    }
+    lintOptions{
+        abortOnError false
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
+    }
+
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'androidx.recyclerview:recyclerview:1.0.0'
+    api('com.alibaba.android:vlayout:1.2.26@aar') {
+        transitive = true
+    }
+}
+
+tasks.withType(Javadoc) {
+    options.encoding = "UTF-8"
+}
+publish{
+    userOrg='x930073498'
+    groupId=GROUP_ID
+    repoName='Icarus'
+    artifactId=ADAPTER_ARTIFACT_ID
+    publishVersion=VERSION_NAME
+    desc='this is a lib about recyclerView'
+    bintrayUser='x930073498'
+    bintrayKey='a99363a3248cc44442c04672024fbfa9fdd70104'
+    licences = ['Apache-2.0']
+    dryRun=false
+}
+uploadArchives {
+
+    repositories.mavenDeployer {
+
+        // 本地仓库路径
+
+        repository(url: uri(LOCAL_REPOSITORY))
+
+        // 唯一标识
+
+        pom.groupId = GROUP_ID
+
+        // 项目名称
+
+        pom.artifactId = ADAPTER_ARTIFACT_ID
+
+        // 版本号
+
+        pom.version = VERSION_NAME
+
+        pom.packaging = LIB_TYPE
+    }
+}
+
+
+uploadArchives.dependsOn 'assembleRelease'

@@ -8,8 +8,8 @@ import android.util.Log;
 
 import com.squareup.leakcanary.ActivityRefWatcher;
 import com.squareup.leakcanary.LeakCanary;
-import com.x930073498.wind.core.IExecutorService;
-import com.x930073498.wind.WindManager;
+import com.x930073498.thread.WindManager;
+import com.x930073498.thread.core.IExecutorService;
 
 public class SecondActivity extends AppCompatActivity {
     private static final String TAG = "SecondActivity";

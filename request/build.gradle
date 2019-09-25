@@ -1,0 +1,58 @@
+apply plugin: 'com.android.library'
+apply plugin: 'maven'
+
+android {
+    compileSdkVersion 28
+
+
+    defaultConfig {
+        minSdkVersion 15
+        targetSdkVersion 28
+        versionCode VERSION_CODE as int
+        versionName VERSION_NAME
+
+
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    debugImplementation project(':context')
+    releaseImplementation "com.x930073498.icarus:${BOAT_ARTIFACT_ID}:${VERSION_NAME}"
+}
+
+
+uploadArchives {
+
+    repositories.mavenDeployer {
+
+        // 本地仓库路径
+
+        repository(url: uri(LOCAL_REPOSITORY))
+
+        // 唯一标识
+
+        pom.groupId = GROUP_ID
+
+        // 项目名称
+
+        pom.artifactId = ISLAND_ARTIFACT_ID
+
+        // 版本号
+
+        pom.version = VERSION_NAME
+
+        pom.packaging = LIB_TYPE
+    }
+}
+
+
+uploadArchives.dependsOn 'assembleRelease'

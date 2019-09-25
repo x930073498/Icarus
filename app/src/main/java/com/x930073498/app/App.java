@@ -7,9 +7,9 @@ import android.util.Log;
 import com.squareup.leakcanary.AndroidRefWatcherBuilder;
 import com.squareup.leakcanary.LeakCanary;
 import com.squareup.leakcanary.RefWatcherBuilder;
-import com.x930073498.oar.FastHookCallback;
-import com.x930073498.oar.FastHookManager;
-import com.x930073498.oar.FastHookParam;
+import com.x930073498.hook.FastHookCallback;
+import com.x930073498.hook.FastHookManager;
+import com.x930073498.hook.FastHookParam;
 
 /**
  * Created by x930073498 on 2019/6/21.
@@ -31,9 +31,9 @@ public class App extends Application {
 
             @Override
             public void afterHookedMethod(FastHookParam param) {
-                Log.e("after","enter this line 2");
-                Log.e("after param",""+param);
+                Log.e("after", "enter this line 2");
+                Log.e("after param", "" + param);
             }
-        },FastHookManager.MODE_REWRITE,true);
+        }, FastHookManager.MODE_REWRITE, true);
     }
 }
