@@ -5,7 +5,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
-import com.x930073498.oar.BuildConfig;
+import com.x930073498.hook.BuildConfig;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;

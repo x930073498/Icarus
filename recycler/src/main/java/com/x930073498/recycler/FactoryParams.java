@@ -9,16 +9,16 @@ import android.view.ViewGroup;
  */
 public final class FactoryParams {
 
-    private Source source;
+    private SourceInterface source;
     ViewGroup parent;
     int viewType;
 
-    FactoryParams(Source source, int viewType) {
+    FactoryParams(SourceInterface source, int viewType) {
         this.source = source;
         this.viewType = viewType;
     }
 
-    public Source getSource() {
+    public SourceInterface getSource() {
         return source;
     }
 

@@ -21,10 +21,11 @@ allprojects {
     repositories {
         google()
         jcenter()
-        maven { url localUrl }
+//        maven { url localUrl }
     }
 }
 
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
+

@@ -18,17 +18,17 @@ final class TypeItemLinker<T> implements ItemLinker<T> {
     }
 
     @Override
-    public TypeProvider<T> getType(InitialBundle<T> bundle) {
+    public TypeProvider<T> getType(@NonNull InitialBundle<T> bundle) {
         return provider;
     }
 
     @Override
-    public HolderFactory createHolder(FactoryParams params) {
+    public HolderFactory createHolder(@NonNull FactoryParams params) {
         return item.createHolder(params);
     }
 
     @Override
-    public void bind(SourceBundle<T> bundle) {
+    public void bind(@NonNull SourceBundle<T> bundle) {
         item.bind(bundle);
     }
 

@@ -15,11 +15,11 @@ public interface ItemLinker<T> {
      * @param bundle
      * @return
      */
-    TypeProvider<T> getType(InitialBundle<T> bundle);
+    TypeProvider<T> getType(@NonNull InitialBundle<T> bundle);
 
-    HolderFactory createHolder(FactoryParams params);
+    HolderFactory createHolder(@NonNull FactoryParams params);
 
-    void bind(SourceBundle<T> bundle);
+    void bind(@NonNull SourceBundle<T> bundle);
 
 
     default void onViewRecycled(@NonNull SourceBundle<T> bundle) {

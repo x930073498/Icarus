@@ -5,8 +5,6 @@ import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
-import com.x930073498.adapter.R;
-
 import java.util.concurrent.atomic.AtomicInteger;
 
 import androidx.annotation.NonNull;

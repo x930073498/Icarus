@@ -18,10 +18,10 @@ import androidx.recyclerview.widget.RecyclerView;
  * 数据源操作类
  */
 @SuppressWarnings("ALL")
-public final class Source<T extends LayoutHelper> {
+public final class Source<T extends LayoutHelper> implements SourceInterface<Source<T>> {
     private List<SourceBundle> data = new ArrayList<>();
     private HashSet<ItemLinker> items = new HashSet<>();
-    private StyleAdapter adapter;
+     StyleAdapter adapter;
     CommonAdapter delegateAdapter;
     volatile boolean isBound = false;
     private SourceManager manager;
@@ -113,7 +113,7 @@ public final class Source<T extends LayoutHelper> {
     }
 
 
-    public final Source notifyDataSetChanged() {
+    public final Source<T> notifyDataSetChanged() {
         if (adapter == null) return this;
         adapter.notifyDataSetChanged();
         return this;
@@ -183,7 +183,7 @@ public final class Source<T extends LayoutHelper> {
         return this;
     }
 
-    public StyleAdapter getAdapter() {
+    public RecyclerView.Adapter  getAdapter() {
         return adapter;
     }
 
@@ -200,7 +200,7 @@ public final class Source<T extends LayoutHelper> {
     private Source(T helper) {
         this.helper = helper;
         plugin = new FactoryPlugin(this);
-        adapter = new StyleAdapter(helper, this);
+        adapter = new StyleAdapter(this);
     }
 
     int size() {
@@ -449,7 +449,7 @@ public final class Source<T extends LayoutHelper> {
         return removeSource(Arrays.asList(data));
     }
 
-    public Source removeSource(List<?> data) {
+    public Source<T> removeSource(List<?> data) {
         if (data.isEmpty()) return this;
         Iterator<SourceBundle> iter = this.data.iterator();
         Bundle bundle;
@@ -510,6 +510,10 @@ public final class Source<T extends LayoutHelper> {
 
     public static <T extends LayoutHelper> Source<T> create(T helper) {
         return new Source<>(helper);
+    }
+
+    public static SourceInterface<?> create() {
+        return new Source<>(null);
     }
 
 

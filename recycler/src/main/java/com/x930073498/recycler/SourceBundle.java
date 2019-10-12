@@ -30,7 +30,7 @@ public final class SourceBundle<T> extends InitialBundle<T> {
     }
 
     @Override
-    public Source getSource() {
+    public SourceInterface getSource() {
         return super.getSource();
     }
 

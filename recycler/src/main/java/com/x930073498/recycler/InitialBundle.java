@@ -1,20 +1,22 @@
 package com.x930073498.recycler;
 
+import androidx.recyclerview.widget.RecyclerView;
+
 /**
  * 用于解析type
  *
  * @param <T>
  */
 public class InitialBundle<T> extends Bundle<T> {
-    Source source;
+    SourceInterface source;
     int position;
-    StyleAdapter adapter;
+    RecyclerView.Adapter adapter;
 
     InitialBundle(ItemLinker<T> item, T data) {
         super(item, data);
     }
 
-    protected Source getSource() {
+    protected SourceInterface getSource() {
         return source;
     }
 
@@ -22,7 +24,7 @@ public class InitialBundle<T> extends Bundle<T> {
         return position;
     }
 
-    public StyleAdapter getAdapter() {
+    public  RecyclerView.Adapter getAdapter() {
         return adapter;
     }
 

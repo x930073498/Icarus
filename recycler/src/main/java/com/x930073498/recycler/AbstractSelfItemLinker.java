@@ -11,13 +11,13 @@ import androidx.recyclerview.widget.RecyclerView;
  */
 public abstract class AbstractSelfItemLinker<T> implements ItemLinker<T>, TypeProvider<T>, HolderFactory {
     @Override
-    public final HolderFactory createHolder(FactoryParams params) {
+    public final HolderFactory createHolder(@NonNull FactoryParams params) {
         return this;
     }
 
 
     @Override
-    public final TypeProvider<T> getType(InitialBundle<T> bundle) {
+    public final TypeProvider<T> getType(@NonNull  InitialBundle<T> bundle) {
         return this;
     }
 

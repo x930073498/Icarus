@@ -17,16 +17,14 @@ import androidx.recyclerview.widget.RecyclerView;
 public final class StyleAdapter extends DelegateAdapter.Adapter<ViewHolder> {
     private Source source;
 
-    private LayoutHelper helper;
 
-    StyleAdapter(LayoutHelper helper, Source source) {
+    StyleAdapter( Source source) {
         this.source = source;
-        this.helper = helper;
     }
 
     @Override
     public LayoutHelper onCreateLayoutHelper() {
-        return helper;
+        return source.getLayoutHelper();
     }
 
     @Override

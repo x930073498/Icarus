@@ -1,10 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.x930073498.islandx">
+    package="com.x930073498.requestX">
 
     <application>
         <provider
             android:name="com.x930073498.requestX.IslandXContentProvider"
-            android:authorities="${applicationId}.com.x930073498.islandx"
+            android:authorities="${applicationId}.com.x930073498.requestX"
             android:exported="false" />
 
     </application>

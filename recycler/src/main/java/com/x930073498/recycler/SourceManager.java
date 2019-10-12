@@ -34,7 +34,7 @@ public class SourceManager {
         ) {
             if (source == null) continue;
             source.delegateAdapter = adapter;
-            adapters.add(source.getAdapter());
+            adapters.add(source.adapter);
             source.isBound = true;
         }
         adapter.addAdapters(adapters);
@@ -48,7 +48,7 @@ public class SourceManager {
             if (source == null) continue;
             source.delegateAdapter = adapter;
             source.isBound = true;
-            adapters.add(source.getAdapter());
+            adapters.add(source.adapter);
         }
         adapter.addAdapters(adapters);
         return this;
@@ -59,7 +59,7 @@ public class SourceManager {
         for (Source source : sources
         ) {
             if (source == null) continue;
-            adapters.add(source.getAdapter());
+            adapters.add(source.adapter);
             source.isBound = false;
         }
         adapter.removeAdapters(adapters);
@@ -71,7 +71,7 @@ public class SourceManager {
         for (Source source : sources
         ) {
             if (source == null) continue;
-            adapters.add(source.getAdapter());
+            adapters.add(source.adapter);
             source.isBound = false;
         }
         adapter.removeAdapters(adapters);

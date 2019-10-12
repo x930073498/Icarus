@@ -1,10 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.x930073498.boat">
+    package="com.x930073498.context">
 
     <application>
         <provider
             android:name="com.x930073498.context.ContextProvider"
-            android:authorities="${applicationId}.com.x930073498.boat"
+            android:authorities="${applicationId}.com.x930073498.context"
             android:exported="false" />
     </application>
 </manifest>
