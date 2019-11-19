@@ -13,9 +13,24 @@ final class FactoryItemLinker<T> implements ItemLinker<T> {
     private ItemLinker<T> item;
     private HolderFactory factory;
 
+    @Override
+    public boolean equals(Object other) {
+        return other instanceof FactoryItemLinker && ((FactoryItemLinker) other).getTypeId().equals(getTypeId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getTypeId().hashCode();
+    }
+
     FactoryItemLinker(ItemLinker<T> item, HolderFactory factory) {
         this.factory = factory;
         this.item = item;
+    }
+
+    @Override
+    public final String getTypeId() {
+        return item.getTypeId();
     }
 
     @Override

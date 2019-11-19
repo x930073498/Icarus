@@ -1,5 +1,7 @@
 package com.x930073498.recycler;
 
+import android.util.Log;
+
 import com.alibaba.android.vlayout.DelegateAdapter;
 import com.alibaba.android.vlayout.VirtualLayoutManager;
 
@@ -15,18 +17,10 @@ public class CommonAdapter extends DelegateAdapter {
         super(layoutManager, hasConsistItemType);
     }
 
+
     @Override
     public int getAdaptersCount() {
         return super.getAdaptersCount();
     }
 
-    @Override
-    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
-        super.onAttachedToRecyclerView(recyclerView);
-    }
-
-    @Override
-    public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
-        super.onDetachedFromRecyclerView(recyclerView);
-    }
 }

@@ -27,7 +27,6 @@ public class TestItemLinker extends AbstractSelfItemLinker<String> {
 
     @Override
     public void onViewAttachedToWindow(@NonNull SourceBundle<String> bundle) {
-        Log.e(TAG, "onViewAttachedToWindow: " );
     }
 
     @Override
@@ -42,6 +41,7 @@ public class TestItemLinker extends AbstractSelfItemLinker<String> {
     @Override
     public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
+        Log.e(TAG, "onAttachedToRecyclerView: " );
 
     }
 

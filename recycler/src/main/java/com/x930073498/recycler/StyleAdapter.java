@@ -1,5 +1,6 @@
 package com.x930073498.recycler;
 
+import android.util.Log;
 import android.view.ViewGroup;
 
 import com.alibaba.android.vlayout.DelegateAdapter;
@@ -18,7 +19,7 @@ public final class StyleAdapter extends DelegateAdapter.Adapter<ViewHolder> {
     private Source source;
 
 
-    StyleAdapter( Source source) {
+    StyleAdapter(Source source) {
         this.source = source;
     }
 
@@ -70,10 +71,13 @@ public final class StyleAdapter extends DelegateAdapter.Adapter<ViewHolder> {
         return source.plugin.create(parent, viewType);
     }
 
+    private ArrayList<Object> list = new ArrayList<>();
+
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        source.bind(holder, position, new ArrayList<>());
+        source.bind(holder, position, list);
     }
+
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position, @NonNull List<Object> payloads) {

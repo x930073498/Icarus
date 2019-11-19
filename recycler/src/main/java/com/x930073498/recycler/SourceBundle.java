@@ -15,6 +15,7 @@ public final class SourceBundle<T> extends InitialBundle<T> {
 
     ViewHolder holder;
     List<Object> payloads = new ArrayList<>();
+    OutBundle out = new OutBundle();
 
     SourceBundle(ItemLinker<T> item, T data) {
         super(item, data);
@@ -46,6 +47,7 @@ public final class SourceBundle<T> extends InitialBundle<T> {
         return item.createHolder(params);
     }
 
+
     public ViewHolder getHolder() {
         return holder;
     }
@@ -55,6 +57,13 @@ public final class SourceBundle<T> extends InitialBundle<T> {
         return payloads;
     }
 
+
+    public void setOut(Object out) {
+        this.out.out = out;
+        this.out.data = getData();
+        this.out.index = getPosition();
+        source.notifyOut(this.out);
+    }
 
     public <V extends View> V getView(int id) {
         return holder.getView(id);

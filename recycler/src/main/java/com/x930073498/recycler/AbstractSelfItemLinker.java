@@ -10,11 +10,16 @@ import androidx.recyclerview.widget.RecyclerView;
  * @param <T>
  */
 public abstract class AbstractSelfItemLinker<T> implements ItemLinker<T>, TypeProvider<T>, HolderFactory {
+
     @Override
     public final HolderFactory createHolder(@NonNull FactoryParams params) {
         return this;
     }
 
+    @Override
+    public final String getTypeId() {
+         return System.currentTimeMillis() + getClass().getName() + System.nanoTime();
+    }
 
     @Override
     public final TypeProvider<T> getType(@NonNull  InitialBundle<T> bundle) {

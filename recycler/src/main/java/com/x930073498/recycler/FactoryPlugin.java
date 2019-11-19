@@ -1,5 +1,6 @@
 package com.x930073498.recycler;
 
+import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
 import android.view.LayoutInflater;
@@ -22,34 +23,28 @@ final class FactoryPlugin {
     }
 
     private class ViewType {
-        SparseArray<SparseIntArray> types = new SparseArray<>();
         SparseArray<FactoryHolder> holders = new SparseArray<>();
-        int result;
         private AtomicInteger ai = new AtomicInteger();
+        /**
+         * key linker返回的type
+         * value 返回delegateAdapter的type
+         */
+        private SparseIntArray types = new SparseIntArray();
+
 
         private FactoryHolder getFactoryHolder(int type) {
             return holders.get(type);
         }
 
         private void clear() {
-            types.clear();
             holders.clear();
         }
 
-        private int getViewType(int type, int hash, SourceBundle<?> bundle) {
-            if (type == 0) return 0;
-            SparseIntArray typeAndResult = types.get(hash);
-            if (typeAndResult == null) {
+        private int getViewType(int type, SourceBundle<?> bundle) {
+            int result = types.get(type, -1);
+            if (result == -1) {
                 result = ai.incrementAndGet();
-                typeAndResult = new SparseIntArray();
-                typeAndResult.put(type, result);
-                types.put(hash, typeAndResult);
-            } else {
-                result = typeAndResult.get(type, 0);
-                if (result == 0) {
-                    result = ai.incrementAndGet();
-                    typeAndResult.put(type, result);
-                }
+                types.put(type, result);
             }
             FactoryHolder holder = holders.get(result);
             if (holder == null) {
@@ -63,11 +58,11 @@ final class FactoryPlugin {
 
 
     int getItemViewType(int position) {
-        SourceBundle bundle = source.getBundle(position);
+        SourceBundle bundle = source.getBundle(source.getIndex(position));
         bundle.position = position;
         int type = bundle.getViewType();
-        int hash = bundle.getTypeHash();
-        return viewType.getViewType(type, hash, bundle);
+
+        return viewType.getViewType(type, bundle);
     }
 
     private class FactoryHolder {
@@ -76,6 +71,7 @@ final class FactoryPlugin {
             this.params = params;
             this.type = type;
         }
+
         int type;
         FactoryParams params;
         HolderFactory factory;

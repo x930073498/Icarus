@@ -12,9 +12,24 @@ final class TypeItemLinker<T> implements ItemLinker<T> {
     private TypeProvider<T> provider;
     private ItemLinker<T> item;
 
+
+    @Override
+    public boolean equals(Object other) {
+        return other instanceof  TypeItemLinker &&((TypeItemLinker) other).getTypeId().equals(getTypeId());
+    }
+    @Override
+    public int hashCode(){
+        return getTypeId().hashCode();
+    }
+
     TypeItemLinker(TypeProvider<T> provider, ItemLinker<T> item) {
         this.item = item;
         this.provider = provider;
+    }
+
+    @Override
+    public final String getTypeId() {
+        return item.getTypeId();
     }
 
     @Override

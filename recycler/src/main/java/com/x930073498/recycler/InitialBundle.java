@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView;
  * @param <T>
  */
 public class InitialBundle<T> extends Bundle<T> {
-    SourceInterface source;
+    Source source;
     int position;
     RecyclerView.Adapter adapter;
 

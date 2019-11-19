@@ -1,0 +1,104 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2016 Alibaba Group
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+apply plugin: 'com.android.library'
+apply plugin: 'maven'
+android {
+    compileSdkVersion Integer.parseInt(System.properties['compileSdkVersion'] ?: '22')
+    defaultConfig {
+        minSdkVersion 15
+        targetSdkVersion 28
+        versionCode VERSION_CODE as int
+        versionName VERSION_NAME
+
+
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'androidx.recyclerview:recyclerview:1.0.0'
+}
+apply plugin: 'com.novoda.bintray-release'
+tasks.withType(Javadoc) {
+    options.encoding = "UTF-8"
+}
+
+publish {
+    userOrg = 'x930073498'
+    groupId = GROUP_ID
+    repoName = 'Icarus'
+    artifactId = VLAYOUT_ARTIFACT_ID
+    publishVersion = VERSION_NAME
+    desc = 'this is a lib about vlayout'
+    bintrayUser = 'x930073498'
+    bintrayKey = 'a99363a3248cc44442c04672024fbfa9fdd70104'
+    licences = ['Apache-2.0']
+    dryRun = false
+    website = 'https://github.com/x930073498/Icarus'
+}
+uploadArchives {
+
+    repositories.mavenDeployer {
+
+        // 本地仓库路径
+
+        repository(url: uri(LOCAL_REPOSITORY))
+
+        // 唯一标识
+
+        pom.groupId = GROUP_ID
+
+        // 项目名称
+
+        pom.artifactId = VLAYOUT_ARTIFACT_ID
+
+        // 版本号
+
+        pom.version = VERSION_NAME
+
+        pom.packaging = LIB_TYPE
+    }
+}
+
+
+uploadArchives.dependsOn 'assembleRelease'
+
+

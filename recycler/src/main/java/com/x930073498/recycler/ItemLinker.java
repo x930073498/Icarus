@@ -9,9 +9,11 @@ import androidx.recyclerview.widget.RecyclerView;
  * @param <T>
  */
 public interface ItemLinker<T> {
+      String getTypeId() ;
 
     /**
      * 解析type
+     *
      * @param bundle
      * @return
      */

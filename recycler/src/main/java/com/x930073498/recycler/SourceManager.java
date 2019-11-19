@@ -13,10 +13,23 @@ import androidx.recyclerview.widget.RecyclerView;
 public class SourceManager {
     private VirtualLayoutManager manager;
     private CommonAdapter adapter;
+//    private List<DelegateAdapter.Adapter> adapters = new ArrayList<>();
+
+    public CommonAdapter getAdapter() {
+        return adapter;
+    }
+
+    public VirtualLayoutManager getLayoutManager() {
+        return manager;
+    }
 
     private SourceManager(Context context) {
+        this(context, false);
+    }
+
+    private SourceManager(Context context, boolean hasConsistItemType) {
         manager = new VirtualLayoutManager(context);
-        adapter = new CommonAdapter(manager, false);
+        adapter = new CommonAdapter(manager, hasConsistItemType);
     }
 
 
@@ -41,6 +54,19 @@ public class SourceManager {
         return this;
     }
 
+    public SourceManager setSource(Source... sources) {
+        List<DelegateAdapter.Adapter> adapters = new ArrayList<>();
+        for (Source source : sources
+        ) {
+            if (source == null) continue;
+            source.delegateAdapter = adapter;
+            adapters.add(source.adapter);
+            source.isBound = true;
+        }
+        adapter.setAdapters(adapters);
+        return this;
+    }
+
     public SourceManager addSources(List<Source> sources) {
         List<DelegateAdapter.Adapter> adapters = new ArrayList<>();
         for (Source source : sources
@@ -51,6 +77,19 @@ public class SourceManager {
             adapters.add(source.adapter);
         }
         adapter.addAdapters(adapters);
+        return this;
+    }
+
+    public SourceManager setSources(List<Source> sources) {
+        List<DelegateAdapter.Adapter> adapters = new ArrayList<>();
+        for (Source source : sources
+        ) {
+            if (source == null) continue;
+            source.delegateAdapter = adapter;
+            source.isBound = true;
+            adapters.add(source.adapter);
+        }
+        adapter.setAdapters(adapters);
         return this;
     }
 
@@ -79,8 +118,14 @@ public class SourceManager {
     }
 
 
+
+
     public static SourceManager create(Context context) {
         return new SourceManager(context);
+    }
+
+    public static SourceManager create(Context context, boolean hasConsistItemType) {
+        return new SourceManager(context, hasConsistItemType);
     }
 
 

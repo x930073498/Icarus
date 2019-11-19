@@ -5,7 +5,7 @@ import java.util.List;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
-public interface SourceInterface< R extends SourceInterface<R>> {
+public interface SourceInterface<R extends SourceInterface<R>> {
     R notifyDataSetChanged();
 
     R notifyItemChanged(int position);
@@ -37,7 +37,7 @@ public interface SourceInterface< R extends SourceInterface<R>> {
     SourceBundle<?> getBundle(int position);
 
 
-    SourceBundle<?> getBundle(Object source);
+    SourceBundle<?> getBundleFromSource(Object source);
 
     int getBundlePosition(SourceBundle bundle);
 
@@ -97,4 +97,14 @@ public interface SourceInterface< R extends SourceInterface<R>> {
     R replace(Bundle<?>... data);
 
     R replace(List<? extends Bundle> items);
+
+    OutBundle getOut(int index);
+
+    OutBundle getOutFromSource(Object source);
+
+    int size();
+
+    R addSourceOutCallback(OutCallback callback);
+
+    R setIndexParser(IndexParser parser);
 }

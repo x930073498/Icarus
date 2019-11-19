@@ -20,6 +20,21 @@ final class FullItemLinker<T> implements ItemLinker<T> {
     }
 
     @Override
+    public boolean equals(Object other) {
+        return other instanceof FullItemLinker && ((FullItemLinker) other).getTypeId().equals(getTypeId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getTypeId().hashCode();
+    }
+
+    @Override
+    public final String getTypeId() {
+        return item.getTypeId();
+    }
+
+    @Override
     public TypeProvider<T> getType(@NonNull InitialBundle<T> bundle) {
         return provider;
     }

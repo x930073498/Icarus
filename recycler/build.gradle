@@ -13,7 +13,7 @@ android {
 
 
     }
-    lintOptions{
+    lintOptions {
         abortOnError false
     }
 
@@ -33,27 +33,25 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.recyclerview:recyclerview:1.0.0'
-    api('com.alibaba.android:vlayout:1.2.26@aar') {
-        transitive = true
-    }
+    api project(":vlayout")
 }
 
 apply plugin: 'com.novoda.bintray-release'
 tasks.withType(Javadoc) {
     options.encoding = "UTF-8"
 }
-publish{
-    userOrg='x930073498'
-    groupId=GROUP_ID
-    repoName='Icarus'
-    artifactId=RECYCLER_ARTIFACT_ID
-    publishVersion=VERSION_NAME
-    desc='this is a lib about recyclerView'
-    bintrayUser='x930073498'
-    bintrayKey='a99363a3248cc44442c04672024fbfa9fdd70104'
+publish {
+    userOrg = 'x930073498'
+    groupId = GROUP_ID
+    repoName = 'Icarus'
+    artifactId = RECYCLER_ARTIFACT_ID
+    publishVersion = VERSION_NAME
+    desc = 'this is a lib about recyclerView'
+    bintrayUser = 'x930073498'
+    bintrayKey = 'a99363a3248cc44442c04672024fbfa9fdd70104'
     licences = ['Apache-2.0']
-    dryRun=false
-    website='https://github.com/x930073498/Icarus'
+    dryRun = false
+    website = 'https://github.com/x930073498/Icarus'
 }
 uploadArchives {
 

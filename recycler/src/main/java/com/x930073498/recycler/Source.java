@@ -1,5 +1,7 @@
 package com.x930073498.recycler;
 
+import android.util.Log;
+
 import com.alibaba.android.vlayout.LayoutHelper;
 
 import java.util.ArrayList;
@@ -21,13 +23,15 @@ import androidx.recyclerview.widget.RecyclerView;
 public final class Source<T extends LayoutHelper> implements SourceInterface<Source<T>> {
     private List<SourceBundle> data = new ArrayList<>();
     private HashSet<ItemLinker> items = new HashSet<>();
-     StyleAdapter adapter;
+    StyleAdapter adapter;
     CommonAdapter delegateAdapter;
     volatile boolean isBound = false;
     private SourceManager manager;
     private T helper;
     FactoryPlugin plugin;
     private List<RecyclerCallback> callbacks = new ArrayList<>();
+    private List<OutCallback> outCallbacks = new ArrayList<>();
+    private IndexParser parser = new DefaultIndexParser();
 
 
     void onViewRecycled(@NonNull ViewHolder holder) {
@@ -183,7 +187,7 @@ public final class Source<T extends LayoutHelper> implements SourceInterface<Sou
         return this;
     }
 
-    public RecyclerView.Adapter  getAdapter() {
+    public RecyclerView.Adapter getAdapter() {
         return adapter;
     }
 
@@ -203,8 +207,34 @@ public final class Source<T extends LayoutHelper> implements SourceInterface<Sou
         adapter = new StyleAdapter(this);
     }
 
-    int size() {
+    void notifyOut(OutBundle out) {
+        for (OutCallback callback : outCallbacks
+        ) {
+            callback.onChange(out);
+        }
+    }
+
+    public int getSourceSize() {
         return data == null ? 0 : data.size();
+    }
+
+    public int size() {
+        int size = getSourceSize();
+        if (parser == null) return size;
+        return parser.size(size);
+    }
+
+    @Override
+    public Source<T> addSourceOutCallback(OutCallback callback) {
+        if (outCallbacks.contains(callback)) return this;
+        outCallbacks.add(callback);
+        return this;
+    }
+
+    @Override
+    public Source<T> setIndexParser(IndexParser parser) {
+        this.parser = parser;
+        return this;
     }
 
     void setAdapter(StyleAdapter adapter) {
@@ -212,7 +242,9 @@ public final class Source<T extends LayoutHelper> implements SourceInterface<Sou
     }
 
     public SourceBundle<?> getBundle(int position) {
-        SourceBundle<?> bundle = data.get(position);
+        int index = getIndex(position);
+        if (index >= getSourceSize()) return null;
+        SourceBundle<?> bundle = data.get(index);
         bundle.source = this;
         return bundle;
     }
@@ -232,7 +264,21 @@ public final class Source<T extends LayoutHelper> implements SourceInterface<Sou
         return this;
     }
 
-    public SourceBundle<?> getBundle(Object source) {
+    @Override
+    public OutBundle getOut(int index) {
+        SourceBundle<?> bundle = getBundle(index);
+        if (bundle == null) return null;
+        return bundle.out;
+    }
+
+    @Override
+    public OutBundle getOutFromSource(Object source) {
+        SourceBundle<?> bundle = getBundleFromSource(source);
+        if (bundle == null) return null;
+        return null;
+    }
+
+    public SourceBundle<?> getBundleFromSource(Object source) {
         for (SourceBundle bundle : data
         ) {
             if (equals(source, bundle.getData())) return bundle;
@@ -246,13 +292,18 @@ public final class Source<T extends LayoutHelper> implements SourceInterface<Sou
 
     public int getBundlePositionWithSource(Object source) {
         SourceBundle bundle;
-        for (int i = 0; i < data.size(); i++) {
+        for (int i = 0; i < getSourceSize(); i++) {
             bundle = data.get(i);
             if (bundle == null) continue;
             if (equals(source, bundle.getData())) return i;
 
         }
         return -1;
+    }
+
+    public int getIndex(int position) {
+        if (parser == null) return position;
+        return parser.getIndex(size(), getSourceSize(), position);
     }
 
     void bind(@NonNull ViewHolder holder, int position, @NonNull List<Object> payloads) {
@@ -290,7 +341,7 @@ public final class Source<T extends LayoutHelper> implements SourceInterface<Sou
     }
 
     public Source<T> move(int start, int to, int count) {
-        if (start == to || start < 0 || start + count >= data.size() || to < 0 || to + count >= data.size())
+        if (start == to || start < 0 || start + count >= getSourceSize() || to < 0 || to + count >= getSourceSize())
             return this;
         List<SourceBundle> list = new ArrayList<>(data.subList(start, start + count));
         removeRange(start, count);
@@ -318,7 +369,7 @@ public final class Source<T extends LayoutHelper> implements SourceInterface<Sou
         if (equals(from, to)) return this;
         int fromIndex = -1, toIndex = -1;
         SourceBundle bundle;
-        for (int i = 0; i < data.size(); i++) {
+        for (int i = 0; i < getSourceSize(); i++) {
             bundle = getBundle(i);
             if (bundle == null) continue;
             if (equals(from, bundle.getData())) {
@@ -336,7 +387,7 @@ public final class Source<T extends LayoutHelper> implements SourceInterface<Sou
     public Source<T> swap(int from, int to, int count) {
         if (data.isEmpty()) return this;
         if (from < 0 || to < 0) return this;
-        if (from + count > data.size() || to + count > data.size()) return this;
+        if (from + count > getSourceSize() || to + count > getSourceSize()) return this;
         if (from > to && to + count > from) return this;
         if (from < to && from + count > to) return this;
         SourceBundle first, second;
@@ -371,7 +422,7 @@ public final class Source<T extends LayoutHelper> implements SourceInterface<Sou
         if (from == null || to == null) return this;
         int first = -1, second = -1;
         SourceBundle fromBundle = null, toBundle = null, tempBundle;
-        for (int i = 0; i < data.size(); i++) {
+        for (int i = 0; i < getSourceSize(); i++) {
             tempBundle = data.get(i);
             if (tempBundle == null) continue;
             if (equals(from, tempBundle.getData())) {
@@ -391,7 +442,7 @@ public final class Source<T extends LayoutHelper> implements SourceInterface<Sou
 
 
     public Source<T> removeRange(int start, int count) {
-        if (start < 0 || start >= data.size() || count <= 0) return this;
+        if (start < 0 || start >= getSourceSize() || count <= 0) return this;
         List<Integer> indexes = new ArrayList<>();
         for (int i = 0; i < count; i++) {
             indexes.add(start + i);
@@ -472,7 +523,7 @@ public final class Source<T extends LayoutHelper> implements SourceInterface<Sou
         Bundle bundle;
         for (int index : indexes
         ) {
-            if (index < 0 || index >= data.size()) continue;
+            if (index < 0 || index >= getSourceSize()) continue;
             list.add(data.get(index));
         }
         remove(list);
@@ -484,7 +535,7 @@ public final class Source<T extends LayoutHelper> implements SourceInterface<Sou
         Bundle bundle;
         for (int index : indexes
         ) {
-            if (index < 0 || index >= data.size()) continue;
+            if (index < 0 || index >= getSourceSize()) continue;
             list.add(data.get(index));
         }
         remove(list);

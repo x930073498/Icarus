@@ -1,5 +1,7 @@
 package com.x930073498.recycler;
 
+import android.view.View;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -28,16 +30,18 @@ public abstract class Bundle<T> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Bundle<?> bundle = (Bundle<?>) o;
-        return equals(data, bundle.data)&&equals(item,bundle.item);
+        return equals(data, bundle.data) && equals(item, bundle.item);
     }
+
     private boolean equals(Object a, Object b) {
         return (a == b) || (a != null && a.equals(b));
     }
 
     @Override
     public int hashCode() {
-        return hash(data,item);
+        return hash(data, item);
     }
+
     private int hash(Object... values) {
         return Arrays.hashCode(values);
     }
@@ -49,8 +53,9 @@ public abstract class Bundle<T> {
     public static <T> List<Bundle<T>> createTypeDelegate(ItemLinker<T> item, TypeProvider<T> provider, T... data) {
         return create(new TypeItemLinker<>(provider, item), data);
     }
+
     public static <T> List<Bundle<T>> createFullDelegate(ItemLinker<T> item, TypeProvider<T> provider, HolderFactory factory, T... data) {
-        return create(new FullItemLinker<>(item,factory,provider), data);
+        return create(new FullItemLinker<>(item, factory, provider), data);
     }
 
 
@@ -81,13 +86,19 @@ public abstract class Bundle<T> {
         ItemLinker<T> temp = new FactoryItemLinker<>(item, factory);
         return create(temp, data);
     }
+
     public static <T> List<Bundle<T>> createFullDelegate(ItemLinker<T> item, TypeProvider<T> provider, HolderFactory factory, List<T> data) {
-        ItemLinker<T> temp = new FullItemLinker<>(item, factory,provider);
+        ItemLinker<T> temp = new FullItemLinker<>(item, factory, provider);
         return create(temp, data);
     }
+
 
     public static <T, R extends TypeProvider<T> & HolderFactory> List<Bundle<T>> createDelegate(ItemLinker<T> item, R delegate, List<T> data) {
         ItemLinker<T> temp = new FullItemLinker<>(item, delegate, delegate);
         return create(temp, data);
+    }
+
+    public static List<Bundle<View>> create(View view) {
+        return create(new SimpleViewItemLinker(view), view);
     }
 }
